@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Finanzas 4U</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -360,6 +361,38 @@ tbody tr:hover td{background:rgba(91,106,240,.03)}
 .tut-final-chips{display:flex;flex-wrap:wrap;gap:.38rem;justify-content:center;margin:.88rem 0}
 .tut-chip{background:rgba(91,106,240,.08);border:1.5px solid rgba(91,106,240,.2);border-radius:20px;padding:.28rem .68rem;font-size:.63rem;color:var(--accent1);font-family:'JetBrains Mono',monospace;font-weight:600}
 
+
+/* ── AUTH SCREEN ──────────────────────────────────────── */
+.auth-wrap{display:none;position:fixed;inset:0;background:var(--bg);background-image:radial-gradient(ellipse 80% 60% at 20% -10%,rgba(91,106,240,.15),transparent),radial-gradient(ellipse 60% 50% at 85% 110%,rgba(124,58,237,.12),transparent);z-index:1000;align-items:center;justify-content:center;padding:1rem}
+.auth-wrap.on{display:flex}
+.auth-box{background:var(--sur);border:1.5px solid var(--brd);border-radius:24px;padding:2.4rem 2rem;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(91,106,240,.14)}
+.auth-logo{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:.3rem}
+.auth-logo em{color:transparent;font-style:normal;background:linear-gradient(135deg,var(--accent1),var(--accent2));-webkit-background-clip:text;background-clip:text}
+.auth-tagline{text-align:center;font-size:.78rem;color:var(--mut);margin-bottom:1.8rem}
+.auth-tabs{display:flex;background:rgba(91,106,240,.07);border-radius:12px;padding:3px;margin-bottom:1.5rem;border:1.5px solid var(--brd)}
+.auth-tab{flex:1;padding:.42rem;border-radius:9px;border:none;background:transparent;font-family:inherit;font-size:.78rem;font-weight:600;color:var(--mut);cursor:pointer;transition:all .18s}
+.auth-tab.on{background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#fff;box-shadow:0 2px 8px rgba(91,106,240,.3)}
+.auth-lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;color:var(--mut);font-family:'JetBrains Mono',monospace;margin-bottom:.32rem}
+.auth-inp{width:100%;background:var(--sur2);border:1.5px solid var(--brd);border-radius:12px;color:var(--txt);font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;padding:.65rem .9rem;outline:none;margin-bottom:.8rem;transition:border-color .15s,box-shadow .15s}
+.auth-inp:focus{border-color:var(--accent1);box-shadow:0 0 0 3px rgba(91,106,240,.12)}
+.auth-btn{width:100%;padding:.75rem;border-radius:12px;background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#fff;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;margin-top:.2rem;transition:all .18s;box-shadow:0 4px 16px rgba(91,106,240,.3)}
+.auth-btn:hover{opacity:.92;transform:translateY(-1px)}
+.auth-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.auth-err{background:rgba(244,63,94,.08);border:1.5px solid rgba(244,63,94,.25);border-radius:10px;padding:.6rem .85rem;font-size:.74rem;color:var(--red);margin-bottom:.8rem;display:none;line-height:1.45}
+.auth-err.on{display:block}
+.auth-ok{background:rgba(16,185,129,.08);border:1.5px solid rgba(16,185,129,.25);border-radius:10px;padding:.6rem .85rem;font-size:.74rem;color:var(--pos);margin-bottom:.8rem;display:none;line-height:1.45}
+.auth-ok.on{display:block}
+.auth-divider{display:flex;align-items:center;gap:.7rem;margin:.5rem 0 1rem;color:var(--mut);font-size:.68rem}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--brd)}
+/* User pill in nav */
+.user-pill{display:flex;align-items:center;gap:.5rem;background:rgba(91,106,240,.08);border:1.5px solid rgba(91,106,240,.2);border-radius:20px;padding:.28rem .75rem;font-size:.72rem;font-weight:600;color:var(--accent1);cursor:pointer;transition:all .15s}
+.user-pill:hover{background:rgba(91,106,240,.15)}
+.user-pill-ico{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.65rem;font-weight:800}
+/* Sync indicator */
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--pos);display:inline-block;margin-right:.3rem}
+.sync-dot.syncing{background:var(--ylw);animation:pulse .8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
 /* TOAST */
 .toast{position:fixed;bottom:1.4rem;left:50%;transform:translateX(-50%) translateY(80px);background:linear-gradient(135deg,var(--accent1),var(--accent2));border:none;border-radius:12px;padding:.55rem 1.25rem;font-family:'JetBrains Mono',monospace;font-size:.74rem;color:#fff;font-weight:600;z-index:999;transition:transform .3s ease,opacity .3s;opacity:0;pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(91,106,240,.35)}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
@@ -701,10 +734,67 @@ input[type=range].ob-sl::-webkit-slider-thumb{-webkit-appearance:none;width:16px
   </div>
 </div>
 
+<!-- ═══════════════════════════════════ AUTH ═══════════════════════════════════ -->
+<div class="auth-wrap on" id="auth-wrap">
+  <div class="auth-box">
+    <div class="auth-logo"><em>$</em> Finanzas 4U</div>
+    <div class="auth-tagline">Tu dinero, organizado. Para siempre.</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab on" id="auth-tab-in" onclick="authShowTab('in')">Iniciar sesión</button>
+      <button class="auth-tab" id="auth-tab-up" onclick="authShowTab('up')">Crear cuenta</button>
+    </div>
+
+    <div id="auth-err" class="auth-err"></div>
+    <div id="auth-ok" class="auth-ok"></div>
+
+    <!-- Login -->
+    <div id="auth-panel-in">
+      <div class="auth-lbl">Correo electrónico</div>
+      <input class="auth-inp" type="email" id="auth-email-in" placeholder="tu@correo.com" autocomplete="email">
+      <div class="auth-lbl">Contraseña</div>
+      <input class="auth-inp" type="password" id="auth-pass-in" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')authLogin()">
+      <button class="auth-btn" id="auth-btn-in" onclick="authLogin()">Entrar →</button>
+      <div style="text-align:center;margin-top:.9rem">
+        <span style="font-size:.7rem;color:var(--mut);cursor:pointer;text-decoration:underline" onclick="authShowReset()">¿Olvidaste tu contraseña?</span>
+      </div>
+    </div>
+
+    <!-- Register -->
+    <div id="auth-panel-up" style="display:none">
+      <div class="auth-lbl">Correo electrónico</div>
+      <input class="auth-inp" type="email" id="auth-email-up" placeholder="tu@correo.com" autocomplete="email">
+      <div class="auth-lbl">Contraseña <span style="font-size:.6rem;color:var(--mut);font-weight:400">(mínimo 6 caracteres)</span></div>
+      <input class="auth-inp" type="password" id="auth-pass-up" placeholder="••••••••" autocomplete="new-password">
+      <div class="auth-lbl">Confirmar contraseña</div>
+      <input class="auth-inp" type="password" id="auth-pass-up2" placeholder="••••••••" autocomplete="new-password" onkeydown="if(event.key==='Enter')authRegister()">
+      <button class="auth-btn" id="auth-btn-up" onclick="authRegister()">Crear cuenta →</button>
+    </div>
+
+    <!-- Reset password -->
+    <div id="auth-panel-reset" style="display:none">
+      <div style="font-size:.82rem;color:var(--mut);margin-bottom:1rem;line-height:1.5">Escribe tu correo y te mandamos un link para restablecer tu contraseña.</div>
+      <div class="auth-lbl">Correo electrónico</div>
+      <input class="auth-inp" type="email" id="auth-email-reset" placeholder="tu@correo.com">
+      <button class="auth-btn" onclick="authReset()">Enviar link →</button>
+      <div style="text-align:center;margin-top:.75rem">
+        <span style="font-size:.7rem;color:var(--mut);cursor:pointer;text-decoration:underline" onclick="authShowTab('in')">← Volver</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════════ NAV ═══════════════════════════════════ -->
-<nav class="nav">
+<nav class="nav" style="display:none">
   <div class="brand" onclick="go('dash')"><em>$</em> Finanzas 4U</div>
   <div class="nav-right">
+    <div id="nav-user" style="display:none">
+      <div class="user-pill" onclick="authShowLogout()">
+        <div class="user-pill-ico" id="nav-user-ico">?</div>
+        <span id="nav-user-email">cuenta</span>
+        <span id="nav-sync-dot" class="sync-dot" title="Datos sincronizados"></span>
+      </div>
+    </div>
     <div class="tabs">
       <button class="tab on" id="tab-dash" onclick="go('dash')">🏠 Inicio</button>
       <button class="tab" id="tab-plan" onclick="go('plan')">📊 Mi Plan</button>
@@ -970,7 +1060,13 @@ var obMode = 'date', obHasGoal = true;
 // ── STORAGE ─────────────────────────────────────────────
 function lsGet(k,def){try{var v=localStorage.getItem(k);return v!==null?JSON.parse(v):def;}catch(e){return def;}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
-function persist(){lsSet('f4u_data',data);}
+function persist(){
+  lsSet('f4u_data',data);
+  if(currentUser){
+    clearTimeout(syncTimer);
+    syncTimer=setTimeout(saveUserData, 1200); // debounce 1.2s
+  }
+}
 function savePlan(){var p={};PFIELDS.forEach(function(id){p[id]=document.getElementById(id).value;});lsSet('f4u_plan',p);}
 function loadPlan(){var p=lsGet('f4u_plan',{});PFIELDS.forEach(function(id){var el=document.getElementById(id);if(el&&p[id]!==undefined)el.value=p[id];});}
 function getStartMo(){return lsGet('f4u_startmo',0)||0;}
@@ -1907,6 +2003,219 @@ document.getElementById('tut-wrap').addEventListener('click',function(e){if(e.ta
 document.querySelectorAll('#scr-plan input[type=number]').forEach(function(el){el.addEventListener('input',function(){savePlan();if(document.getElementById('scr-plan').classList.contains('on'))renderPlan();});});
 
 // ── INIT ────────────────────────────────────────────────
+
+// ── SUPABASE AUTH ────────────────────────────────────────
+const SUPA_URL = 'https://nngymebkfkpppcmlhsfw.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uZ3ltZWJrZmtwcHBjbWxoc2Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMDEzNzksImV4cCI6MjA4Nzc3NzM3OX0.O_mdIWl4ydEqSugQXOWLVX2PYRYFy1Rdtg-E5jQ2t28';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+var currentUser = null;
+
+// ── Auth UI helpers ──────────────────────────────────────
+function authShowTab(tab){
+  document.getElementById('auth-panel-in').style.display = tab==='in'?'block':'none';
+  document.getElementById('auth-panel-up').style.display = tab==='up'?'block':'none';
+  document.getElementById('auth-panel-reset').style.display = 'none';
+  document.getElementById('auth-tab-in').className = 'auth-tab'+(tab==='in'?' on':'');
+  document.getElementById('auth-tab-up').className = 'auth-tab'+(tab==='up'?' on':'');
+  authClearMsg();
+}
+function authShowReset(){
+  document.getElementById('auth-panel-in').style.display='none';
+  document.getElementById('auth-panel-up').style.display='none';
+  document.getElementById('auth-panel-reset').style.display='block';
+  authClearMsg();
+}
+function authSetErr(msg){
+  var e=document.getElementById('auth-err');
+  e.textContent=msg;e.className='auth-err on';
+  document.getElementById('auth-ok').className='auth-ok';
+}
+function authSetOk(msg){
+  var e=document.getElementById('auth-ok');
+  e.textContent=msg;e.className='auth-ok on';
+  document.getElementById('auth-err').className='auth-err';
+}
+function authClearMsg(){
+  document.getElementById('auth-err').className='auth-err';
+  document.getElementById('auth-ok').className='auth-ok';
+}
+function authSetLoading(id, loading){
+  var btn=document.getElementById(id);
+  if(!btn)return;
+  btn.disabled=loading;
+  btn.textContent=loading?'Cargando...':btn.dataset.orig||btn.textContent;
+}
+
+// ── Login ────────────────────────────────────────────────
+async function authLogin(){
+  var email=document.getElementById('auth-email-in').value.trim();
+  var pass=document.getElementById('auth-pass-in').value;
+  if(!email||!pass){authSetErr('Completa todos los campos');return;}
+  var btn=document.getElementById('auth-btn-in');
+  btn.disabled=true;btn.textContent='Entrando...';
+  var {data,error}=await supa.auth.signInWithPassword({email,password:pass});
+  btn.disabled=false;btn.textContent='Entrar →';
+  if(error){authSetErr(authErrMsg(error.message));return;}
+  await onAuthSuccess(data.user);
+}
+
+// ── Register ─────────────────────────────────────────────
+async function authRegister(){
+  var email=document.getElementById('auth-email-up').value.trim();
+  var pass=document.getElementById('auth-pass-up').value;
+  var pass2=document.getElementById('auth-pass-up2').value;
+  if(!email||!pass||!pass2){authSetErr('Completa todos los campos');return;}
+  if(pass!==pass2){authSetErr('Las contraseñas no coinciden');return;}
+  if(pass.length<6){authSetErr('La contraseña debe tener al menos 6 caracteres');return;}
+  var btn=document.getElementById('auth-btn-up');
+  btn.disabled=true;btn.textContent='Creando cuenta...';
+  var {data,error}=await supa.auth.signUp({email,password:pass});
+  btn.disabled=false;btn.textContent='Crear cuenta →';
+  if(error){authSetErr(authErrMsg(error.message));return;}
+  if(data.user&&data.user.identities&&data.user.identities.length===0){
+    authSetErr('Ya existe una cuenta con ese correo. ¿Quieres iniciar sesión?');return;
+  }
+  authSetOk('✓ Cuenta creada. Revisa tu correo para confirmar y luego inicia sesión.');
+}
+
+// ── Reset password ───────────────────────────────────────
+async function authReset(){
+  var email=document.getElementById('auth-email-reset').value.trim();
+  if(!email){authSetErr('Escribe tu correo');return;}
+  var {error}=await supa.auth.resetPasswordForEmail(email,{redirectTo:window.location.origin});
+  if(error){authSetErr(authErrMsg(error.message));return;}
+  authSetOk('✓ Link enviado. Revisa tu bandeja de entrada.');
+}
+
+// ── Logout ───────────────────────────────────────────────
+function authShowLogout(){
+  var el=document.getElementById('logout-email-lbl');
+  if(el&&currentUser)el.textContent=currentUser.email;
+  document.getElementById('mo-logout').classList.add('on');
+}
+async function authLogout(){
+  await supa.auth.signOut();
+  currentUser=null;
+  document.getElementById('mo-logout').classList.remove('on');
+  document.getElementById('nav-user').style.display='none';
+  // Clear local data
+  data={};goals=[];
+  document.getElementById('auth-email-in').value='';
+  document.getElementById('auth-pass-in').value='';
+  authClearMsg();
+  authShowTab('in');
+  document.getElementById('auth-wrap').classList.add('on');
+  // Hide app
+  document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on');});
+  document.querySelector('nav').style.display='none';
+}
+
+// ── Error message translator ──────────────────────────────
+function authErrMsg(msg){
+  if(msg.includes('Invalid login'))return 'Correo o contraseña incorrectos';
+  if(msg.includes('Email not confirmed'))return 'Confirma tu correo antes de entrar';
+  if(msg.includes('User already registered'))return 'Ya existe una cuenta con ese correo';
+  if(msg.includes('Password should be'))return 'La contraseña debe tener al menos 6 caracteres';
+  if(msg.includes('rate limit'))return 'Demasiados intentos. Espera unos minutos';
+  return msg;
+}
+
+// ── On successful auth ───────────────────────────────────
+async function onAuthSuccess(user){
+  currentUser=user;
+  document.getElementById('auth-wrap').classList.remove('on');
+  document.querySelector('nav').style.display='';
+  // Show user pill
+  var navUser=document.getElementById('nav-user');
+  navUser.style.display='block';
+  var emailShort=user.email.split('@')[0];
+  document.getElementById('nav-user-email').textContent=emailShort;
+  document.getElementById('nav-user-ico').textContent=emailShort[0].toUpperCase();
+  // Load user data from Supabase
+  await loadUserData(user.id);
+  init();
+}
+
+// ── Persist data to Supabase ─────────────────────────────
+var syncTimer=null;
+function syncDot(state){
+  var dot=document.getElementById('nav-sync-dot');
+  if(!dot)return;
+  dot.className='sync-dot'+(state==='syncing'?' syncing':'');
+  dot.title=state==='syncing'?'Guardando...':'Datos sincronizados';
+}
+async function saveUserData(){
+  if(!currentUser)return;
+  syncDot('syncing');
+  var payload={
+    user_id:currentUser.id,
+    plan_data:JSON.stringify(getPlanObj()),
+    monthly_data:JSON.stringify(data),
+    goals_data:JSON.stringify(goals),
+    snaps_data:JSON.stringify(lsGet('f4u_snaps',[])),
+    updated_at:new Date().toISOString()
+  };
+  await supa.from('user_data').upsert(payload,{onConflict:'user_id'});
+  syncDot('ok');
+}
+function getPlanObj(){
+  var obj={};
+  PFIELDS.forEach(function(id){var el=document.getElementById(id);if(el)obj[id]=el.value;});
+  obj.f4u_startmo=lsGet('f4u_startmo',0);
+  obj.f4u_goalmo=lsGet('f4u_goalmo',null);
+  obj.f4u_goalyr=lsGet('f4u_goalyr',null);
+  obj.f4u_goalname=lsGet('f4u_goalname','');
+  return obj;
+}
+async function loadUserData(uid){
+  var {data:rows,error}=await supa.from('user_data').select('*').eq('user_id',uid).single();
+  if(error||!rows)return; // new user, no data yet
+  try{
+    // Restore plan fields
+    var plan=JSON.parse(rows.plan_data||'{}');
+    PFIELDS.forEach(function(id){var el=document.getElementById(id);if(el&&plan[id]!==undefined)el.value=plan[id];});
+    if(plan.f4u_startmo!==undefined)lsSet('f4u_startmo',plan.f4u_startmo);
+    if(plan.f4u_goalmo!==null&&plan.f4u_goalmo!==undefined)lsSet('f4u_goalmo',plan.f4u_goalmo);
+    if(plan.f4u_goalyr!==null&&plan.f4u_goalyr!==undefined)lsSet('f4u_goalyr',plan.f4u_goalyr);
+    if(plan.f4u_goalname!==undefined)lsSet('f4u_goalname',plan.f4u_goalname);
+    // Restore monthly data
+    data=JSON.parse(rows.monthly_data||'{}');
+    // Restore goals
+    goals=JSON.parse(rows.goals_data||'[]');
+    lsSet('f4u_goals',goals);
+    // Restore snaps
+    var snaps=JSON.parse(rows.snaps_data||'[]');
+    lsSet('f4u_snaps',snaps);
+    lsSet('f4u_ob','done'); // skip onboarding if user has data
+  }catch(e){console.warn('Error loading user data',e);}
+}
+
+// ── Override persist() to also save to Supabase ──────────
+var _origPersist=null; // will be set after original persist is defined
+
+// ── Check session on load ────────────────────────────────
+async function checkSession(){
+  var {data:{session}}=await supa.auth.getSession();
+  if(session){
+    await onAuthSuccess(session.user);
+  } else {
+    // Show auth screen, hide nav
+    document.getElementById('auth-wrap').classList.add('on');
+    document.querySelector('nav').style.display='none';
+    var loader=document.getElementById('app-loading');
+    if(loader)loader.style.display='none';
+  }
+  // Listen for auth changes
+  supa.auth.onAuthStateChange(async function(event,session){
+    if(event==='SIGNED_IN'&&session&&!currentUser){
+      await onAuthSuccess(session.user);
+    }
+    if(event==='SIGNED_OUT'){
+      currentUser=null;
+    }
+  });
+}
+
 function init(){
   var loader=document.getElementById('app-loading');if(loader)loader.style.display='none';
   data=lsGet('f4u_data',{});goals=lsGet('f4u_goals',[]);loadPlan();syncDeadlineSelects();
@@ -1916,11 +2225,26 @@ function init(){
   if(!ob){obDots(0);document.getElementById('ob-wrap').classList.add('on');}
   else{renderDash();if(!lsGet('f4u_tut',null))setTimeout(startTutorial,700);}
 }
-(function waitForChart(){
-  if(document.readyState!=='loading'&&typeof Chart!=='undefined'){init();}
-  else if(typeof Chart!=='undefined'){document.addEventListener('DOMContentLoaded',init);}
-  else{setTimeout(waitForChart,50);}
+(function waitForAll(){
+  if(document.readyState!=='loading'&&typeof Chart!=='undefined'&&typeof supabase!=='undefined'){checkSession();}
+  else{setTimeout(waitForAll,50);}
 })();
 </script>
+
+<!-- MODAL: LOGOUT -->
+<div class="mo" id="mo-logout">
+  <div class="mbox" style="max-width:340px;text-align:center">
+    <div style="font-size:2rem;margin-bottom:.5rem">👋</div>
+    <h3 style="margin-bottom:.3rem">Tu <em>cuenta</em></h3>
+    <p class="msub" id="logout-email-lbl" style="margin-bottom:1.2rem">usuario@correo.com</p>
+    <div style="background:rgba(91,106,240,.06);border:1.5px solid var(--brd);border-radius:12px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.74rem;color:var(--mut);display:flex;align-items:center;gap:.5rem">
+      <span class="sync-dot"></span> Tus datos están guardados en la nube
+    </div>
+    <div class="macts" style="flex-direction:column;gap:.5rem">
+      <button class="btn btn-p" onclick="authLogout()">Cerrar sesión</button>
+      <button class="btn btn-s" onclick="document.getElementById('mo-logout').classList.remove('on')">Cancelar</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
