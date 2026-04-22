@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finanzas 4U</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#eef3ff;
+      --bg2:#f8faff;
+      --surface:#ffffff;
+      --surface-2:#f5f7ff;
+      --border:#dbe4ff;
+      --text:#1e1b4b;
+      --muted:#6f74a5;
+      --primary:#4263eb;
+      --secondary:#7c3aed;
+      --success:#10b981;
+      --danger:#f43f5e;
+      --warning:#f59e0b;
+      --shadow:0 16px 40px rgba(66,99,235,.10);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:"Plus Jakarta Sans",sans-serif;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(66,99,235,.14), transparent 28%),
+        radial-gradient(circle at 90% 100%, rgba(124,58,237,.12), transparent 28%),
+        var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+    button,input,select{font:inherit}
+    input,select{
+      width:100%;
+      border:1.5px solid var(--border);
+      background:var(--surface-2);
+      color:var(--text);
+      border-radius:12px;
+      padding:.78rem .9rem;
+      outline:none;
+      transition:.18s border-color,.18s box-shadow;
+    }
+    input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(66,99,235,.12)}
+    input[type=number]{-moz-appearance:textfield}
+    input[type=number]::-webkit-inner-spin-button{appearance:none}
+    .hidden{display:none !important}
+    .loader,.auth-wrap,.onboarding-wrap,.modal-wrap{
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:1rem;z-index:1000;
+    }
+    .loader{
+      background:var(--bg);
+      flex-direction:column;
+      gap:.75rem;
+    }
+    .loader-title,.brand,.hero-title,.section-title,.auth-logo,.wizard-title{
+      font-family:"Syne",sans-serif;
+    }
+    .loader-title,.auth-logo{font-size:1.7rem;font-weight:800}
+    .gradient{
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
+    .loader-sub,.muted,.field-help,.hero-sub,.eyebrow,.small-label{
+      color:var(--muted);
+    }
+    .auth-wrap,.onboarding-wrap,.modal-wrap{
+      background:rgba(22,28,80,.36);
+      backdrop-filter:blur(8px);
+    }
+    .panel,.auth-box,.wizard-box,.modal-box{
+      width:min(100%, 1080px);
+      background:var(--surface);
+      border:1.5px solid var(--border);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+    }
+    .auth-box,.wizard-box,.modal-box{
+      width:min(100%, 460px);
+      padding:2rem;
+    }
+    .auth-tabs,.nav-tabs{
+      display:flex;
+      background:rgba(66,99,235,.08);
+      padding:4px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      gap:4px;
+    }
+    .auth-tab,.nav-tab{
+      flex:1;
+      border:none;
+      background:transparent;
+      color:var(--muted);
+      padding:.7rem .8rem;
+      border-radius:10px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .auth-tab.active,.nav-tab.active{
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      color:#fff;
+    }
+    .auth-actions{display:flex;flex-direction:column;gap:.85rem}
+    .btn{
+      border:none;
+      border-radius:12px;
+      padding:.82rem 1rem;
+      font-weight:800;
+      cursor:pointer;
+      transition:.18s transform,.18s opacity;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{
+      color:#fff;
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+    }
+    .btn-secondary{
+      background:var(--surface-2);
+      border:1.5px solid var(--border);
+      color:var(--text);
+    }
+    .btn-danger{
+      background:rgba(244,63,94,.1);
+      color:var(--danger);
+      border:1.5px solid rgba(244,63,94,.2);
+    }
+    .message{
+      padding:.8rem .95rem;
+      border-radius:14px;
+      font-size:.92rem;
+      line-height:1.45;
+      margin:1rem 0;
+      display:none;
+    }
+    .message.show{display:block}
+    .message.error{background:rgba(244,63,94,.08);color:var(--danger);border:1px solid rgba(244,63,94,.22)}
+    .message.success{background:rgba(16,185,129,.08);color:var(--success);border:1px solid rgba(16,185,129,.24)}
+    .app-shell{display:none}
+    .nav{
+      position:sticky;top:0;z-index:50;
+      backdrop-filter:blur(14px);
+      background:rgba(238,243,255,.88);
+      border-bottom:1px solid var(--border);
+    }
+    .nav-inner{
+      max-width:1100px;
+      margin:0 auto;
+      padding:.9rem 1rem;
+      display:flex;
+      justify-content:space-between;
+      gap:.8rem;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .brand{font-size:1.2rem;font-weight:800}
+    .user-chip{
+      display:flex;align-items:center;gap:.6rem;
+      background:rgba(66,99,235,.08);
+      border:1px solid rgba(66,99,235,.16);
+      border-radius:999px;
+      padding:.4rem .8rem;
+    }
+    .user-badge{
+      width:28px;height:28px;border-radius:50%;
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      color:#fff;display:grid;place-items:center;font-weight:800;
+    }
+    .sync-dot{width:9px;height:9px;border-radius:50%;background:var(--success)}
+    .sync-dot.syncing{background:var(--warning);animation:pulse 1s infinite}
+    @keyframes pulse{50%{opacity:.4}}
+    .screen{
+      display:none;
+      max-width:1100px;
+      margin:0 auto;
+      padding:1.4rem 1rem 3rem;
+    }
+    .screen.active{display:block}
+    .hero{
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      color:#fff;
+      border-radius:26px;
+      padding:1.6rem;
+      margin-bottom:1.2rem;
+      position:relative;
+      overflow:hidden;
+      box-shadow:0 18px 44px rgba(66,99,235,.22);
+    }
+    .hero::after{
+      content:"";
+      position:absolute;
+      width:220px;height:220px;right:-50px;top:-60px;
+      background:radial-gradient(circle, rgba(255,255,255,.18), transparent 70%);
+    }
+    .hero-title{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;margin:.35rem 0}
+    .hero-sub{color:rgba(255,255,255,.82)}
+    .hero-actions{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem}
+    .hero-actions .btn-secondary{
+      background:rgba(255,255,255,.14);
+      color:#fff;
+      border-color:rgba(255,255,255,.24);
+    }
+    .grid-kpi,.grid-two,.wizard-grid{
+      display:grid;
+      gap:1rem;
+    }
+    .grid-kpi{grid-template-columns:repeat(3,1fr);margin-bottom:1rem}
+    .grid-two{grid-template-columns:repeat(2,1fr)}
+    .wizard-grid{grid-template-columns:repeat(2,1fr)}
+    .card{
+      background:var(--surface);
+      border:1.5px solid var(--border);
+      border-radius:20px;
+      padding:1.1rem;
+      box-shadow:var(--shadow);
+    }
+    .card-title,.eyebrow,.small-label{
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-size:.68rem;
+      font-family:"JetBrains Mono",monospace;
+    }
+    .kpi-value{
+      font-family:"Syne",sans-serif;
+      font-size:1.6rem;
+      font-weight:800;
+      margin:.15rem 0;
+    }
+    .value-primary{color:var(--primary)}
+    .value-secondary{color:var(--secondary)}
+    .value-success{color:var(--success)}
+    .value-danger{color:var(--danger)}
+    .section-head{
+      margin-bottom:1rem;
+    }
+    .section-title{
+      font-size:clamp(1.5rem,3vw,2.2rem);
+      font-weight:800;
+      margin-bottom:.25rem;
+    }
+    .field-row{display:grid;grid-template-columns:1.4fr 1fr;gap:.7rem;align-items:center;margin-bottom:.8rem}
+    .field-label{display:flex;flex-direction:column;gap:.18rem}
+    .field-help{
+      font-size:.76rem;
+      color:var(--muted);
+      line-height:1.4;
+    }
+    .progress{
+      background:rgba(66,99,235,.10);
+      height:12px;border-radius:999px;overflow:hidden;
+    }
+    .progress-fill{
+      height:100%;
+      width:0;
+      background:linear-gradient(90deg,var(--primary),var(--secondary));
+      transition:width .3s ease;
+    }
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:.8rem .75rem;border-bottom:1px solid var(--border);text-align:right;font-size:.9rem}
+    th:first-child,td:first-child{text-align:left}
+    th{font-size:.68rem;color:var(--muted);font-family:"JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.09em}
+    .month-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem}
+    .month-tile{
+      border:1.5px solid var(--border);
+      border-radius:18px;
+      background:var(--surface);
+      padding:1rem;
+      box-shadow:var(--shadow);
+      cursor:pointer;
+      transition:.18s transform,.18s border-color;
+    }
+    .month-tile:hover{transform:translateY(-2px);border-color:var(--primary)}
+    .month-tile.done{background:linear-gradient(135deg, rgba(66,99,235,.06), rgba(124,58,237,.04))}
+    .month-tile.locked{opacity:.45;cursor:not-allowed;box-shadow:none}
+    .goal-list,.snapshot-list{display:flex;flex-direction:column;gap:.65rem}
+    .goal-item,.snapshot-item{
+      display:flex;justify-content:space-between;gap:.8rem;align-items:center;
+      padding:.9rem 1rem;border:1.5px solid var(--border);border-radius:16px;background:var(--surface-2);
+    }
+    .goal-meta,.snapshot-meta{display:flex;flex-direction:column;gap:.22rem}
+    .goal-actions,.snapshot-actions{display:flex;gap:.45rem;flex-wrap:wrap}
+    .inline{
+      display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;
+    }
+    .toast{
+      position:fixed;left:50%;bottom:1.3rem;transform:translateX(-50%) translateY(80px);
+      background:linear-gradient(135deg,var(--primary),var(--secondary));
+      color:#fff;
+      padding:.8rem 1rem;
+      border-radius:14px;
+      box-shadow:0 18px 42px rgba(66,99,235,.30);
+      transition:.25s transform,.25s opacity;
+      opacity:0;pointer-events:none;z-index:1200;
+      font-family:"JetBrains Mono",monospace;
+      font-size:.84rem;
+    }
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .divider{height:1px;background:var(--border);margin:1rem 0}
+    .google-btn{
+      display:flex;align-items:center;justify-content:center;gap:.6rem;
+      background:var(--surface);
+      border:1.5px solid var(--border);
+      color:var(--text);
+    }
+    .wizard-steps{display:flex;gap:.45rem;justify-content:center;margin-bottom:1.2rem}
+    .wizard-dot{
+      width:10px;height:10px;border-radius:999px;background:var(--border);
+      transition:.2s all;
+    }
+    .wizard-dot.active{width:26px;background:linear-gradient(135deg,var(--primary),var(--secondary))}
+    .wizard-step{display:none}
+    .wizard-step.active{display:block}
+    .summary-banner{
+      border-radius:18px;
+      padding:1rem;
+      border:1px solid rgba(66,99,235,.18);
+      background:linear-gradient(135deg, rgba(66,99,235,.07), rgba(124,58,237,.05));
+      margin-bottom:1rem;
+    }
+    .flow-card{
+      background:var(--surface);
+      border:1.5px solid var(--border);
+      border-radius:20px;
+      padding:1rem 1.1rem;
+      box-shadow:var(--shadow);
+      margin-bottom:1rem;
+    }
+    .flow-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:.7rem;
+      margin-top:.8rem;
+    }
+    .flow-step{
+      background:var(--surface-2);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:.9rem;
+    }
+    .flow-step strong{
+      display:block;
+      margin-bottom:.2rem;
+      font-size:.88rem;
+    }
+    .flow-step span{
+      font-size:.76rem;
+      color:var(--muted);
+      line-height:1.45;
+    }
+    .context-note{
+      font-size:.82rem;
+      color:var(--muted);
+      line-height:1.5;
+      margin:.3rem 0 1rem;
+    }
+    .actions-end{display:flex;justify-content:flex-end;gap:.6rem;flex-wrap:wrap}
+    @media (max-width:900px){
+      .grid-kpi,.grid-two,.wizard-grid,.month-grid{grid-template-columns:repeat(2,1fr)}
+      .flow-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:620px){
+      .grid-kpi,.grid-two,.wizard-grid,.month-grid{grid-template-columns:1fr}
+      .field-row{grid-template-columns:1fr}
+      .auth-box,.wizard-box,.modal-box{padding:1.4rem}
+      .flow-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div id="app-loading" class="loader">
+    <div class="loader-title"><span class="gradient">$ Finanzas 4U</span></div>
+    <div class="loader-sub">Cargando tu app...</div>
+  </div>
+
+  <div id="auth-wrap" class="auth-wrap hidden">
+    <div class="auth-box">
+      <div class="auth-logo"><span class="gradient">$ Finanzas 4U</span></div>
+      <p class="muted" style="text-align:center;margin:.4rem 0 1.3rem">Tu dinero, organizado en un solo lugar.</p>
+
+      <div class="auth-tabs" style="margin-bottom:1rem">
+        <button id="tab-login" class="auth-tab active" type="button">Iniciar sesión</button>
+        <button id="tab-register" class="auth-tab" type="button">Crear cuenta</button>
+      </div>
+
+      <div id="auth-error" class="message error"></div>
+      <div id="auth-success" class="message success"></div>
+
+      <div id="login-panel">
+        <div class="auth-actions">
+          <button id="google-login-btn" class="btn google-btn" type="button">
+            <span>G</span>
+            <span>Continuar con Google</span>
+          </button>
+          <div class="muted" style="text-align:center;font-size:.9rem">o entra con correo</div>
+          <input id="login-email" type="email" placeholder="tu@correo.com" autocomplete="email">
+          <input id="login-password" type="password" placeholder="Contraseña" autocomplete="current-password">
+          <button id="login-btn" class="btn btn-primary" type="button">Entrar</button>
+          <button id="open-reset-btn" class="btn btn-secondary" type="button">Olvidé mi contraseña</button>
+        </div>
+      </div>
+
+      <div id="register-panel" class="hidden">
+        <div class="auth-actions">
+          <button id="google-register-btn" class="btn google-btn" type="button">
+            <span>G</span>
+            <span>Continuar con Google</span>
+          </button>
+          <div class="muted" style="text-align:center;font-size:.9rem">o crea tu cuenta</div>
+          <input id="register-email" type="email" placeholder="tu@correo.com" autocomplete="email">
+          <input id="register-password" type="password" placeholder="Contraseña" autocomplete="new-password">
+          <input id="register-password-2" type="password" placeholder="Confirmar contraseña" autocomplete="new-password">
+          <button id="register-btn" class="btn btn-primary" type="button">Crear cuenta</button>
+        </div>
+      </div>
+
+      <div id="reset-panel" class="hidden">
+        <div class="auth-actions">
+          <p class="muted">Te mandamos un link para restablecer tu contraseña.</p>
+          <input id="reset-email" type="email" placeholder="tu@correo.com" autocomplete="email">
+          <button id="reset-btn" class="btn btn-primary" type="button">Enviar link</button>
+          <button id="reset-back-btn" class="btn btn-secondary" type="button">Volver</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="onboarding-wrap" class="onboarding-wrap hidden">
+    <div class="wizard-box">
+      <div id="wizard-steps" class="wizard-steps"></div>
+
+      <div id="wizard-step-0" class="wizard-step active">
+        <div style="font-size:2.4rem;text-align:center;margin-bottom:.8rem">👋</div>
+        <div class="wizard-title" style="font-size:1.7rem;font-weight:800;text-align:center;margin-bottom:.35rem">Bienvenido a <span class="gradient">Finanzas 4U</span></div>
+        <p class="muted" style="text-align:center;line-height:1.5;margin-bottom:1.2rem">Vamos a dejar tu app lista en unos minutos.</p>
+        <button class="btn btn-primary" type="button" onclick="wizardNext()">Empezar</button>
+      </div>
+
+      <div id="wizard-step-1" class="wizard-step">
+        <div class="wizard-title" style="font-size:1.5rem;font-weight:800;margin-bottom:.7rem">Tus ingresos</div>
+        <p class="context-note">Pon montos mensuales netos. Esto crea tu presupuesto base; luego lo podrás ajustar en <strong>Mi Plan</strong>.</p>
+        <div class="auth-actions">
+          <input id="ob-salary" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          <input id="ob-extra-income" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          <div class="actions-end">
+            <button class="btn btn-secondary" type="button" onclick="wizardPrev()">Atrás</button>
+            <button class="btn btn-primary" type="button" onclick="wizardNext()">Siguiente</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="wizard-step-2" class="wizard-step">
+        <div class="wizard-title" style="font-size:1.5rem;font-weight:800;margin-bottom:.7rem">Tus gastos mensuales</div>
+        <p class="context-note">Aquí van tus gastos planeados promedio por mes. No tienen que ser exactos; solo sirven para arrancar tu presupuesto.</p>
+        <div class="wizard-grid">
+          <input id="ob-rent" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          <input id="ob-food" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          <input id="ob-transport" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          <input id="ob-debt" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          <input id="ob-services" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          <input id="ob-other-expenses" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+        </div>
+        <div class="actions-end" style="margin-top:1rem">
+          <button class="btn btn-secondary" type="button" onclick="wizardPrev()">Atrás</button>
+          <button class="btn btn-primary" type="button" onclick="wizardNext()">Siguiente</button>
+        </div>
+      </div>
+
+      <div id="wizard-step-3" class="wizard-step">
+        <div class="wizard-title" style="font-size:1.5rem;font-weight:800;margin-bottom:.7rem">Tu meta principal</div>
+        <p class="context-note">Esta meta le da dirección a la app: calcula cuánto tendrías que apartar cada mes y cómo vas avanzando.</p>
+        <div class="auth-actions">
+          <input id="ob-start-savings" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          <input id="ob-goal-name" type="text" placeholder="Nombre de tu meta (ej. Fondo de emergencia)">
+          <input id="ob-goal-amount" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          <div class="inline">
+            <select id="ob-goal-month"></select>
+            <select id="ob-goal-year"></select>
+          </div>
+          <div id="wizard-summary" class="summary-banner"></div>
+          <div class="actions-end">
+            <button class="btn btn-secondary" type="button" onclick="wizardPrev()">Atrás</button>
+            <button class="btn btn-primary" type="button" onclick="finishOnboarding()">Guardar plan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-shell" class="app-shell">
+    <nav class="nav">
+      <div class="nav-inner">
+        <div class="brand"><span class="gradient">$ Finanzas 4U</span></div>
+        <div class="inline" style="flex-wrap:wrap">
+          <div class="nav-tabs">
+            <button class="nav-tab active" type="button" data-screen="dashboard">Inicio</button>
+            <button class="nav-tab" type="button" data-screen="plan">Mi Plan</button>
+            <button class="nav-tab" type="button" data-screen="tracker">Meses</button>
+          </div>
+          <div class="user-chip">
+            <div id="user-badge" class="user-badge">U</div>
+            <div>
+              <div id="user-name" style="font-size:.92rem;font-weight:700">Usuario</div>
+              <div style="display:flex;align-items:center;gap:.45rem;font-size:.75rem" class="muted">
+                <span id="sync-dot" class="sync-dot"></span>
+                <span id="sync-label">Sincronizado</span>
+              </div>
+            </div>
+            <button id="logout-open-btn" class="btn btn-secondary" type="button" style="padding:.55rem .85rem">Salir</button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <section id="screen-dashboard" class="screen active">
+      <div class="hero">
+        <div class="eyebrow" style="color:rgba(255,255,255,.72)">Resumen general</div>
+        <div id="hero-title" class="hero-title">Tu centro financiero</div>
+        <div id="hero-sub" class="hero-sub">Configura tu plan para empezar.</div>
+        <div class="hero-actions">
+          <button class="btn btn-secondary" type="button" onclick="switchScreen('tracker')">Registrar mes</button>
+          <button class="btn btn-secondary" type="button" onclick="openOnboarding(true)">Editar plan</button>
+        </div>
+      </div>
+
+      <div class="flow-card">
+        <div class="card-title">Flujo de la App</div>
+        <div class="context-note">No son datos duplicados: cada pantalla sirve para una etapa distinta de tu dinero.</div>
+        <div class="flow-grid">
+          <div class="flow-step">
+            <strong>1. Onboarding</strong>
+            <span>Pones un estimado inicial de ingresos, gastos y tu meta principal.</span>
+          </div>
+          <div class="flow-step">
+            <strong>2. Mi Plan</strong>
+            <span>Editas tu presupuesto mensual planeado: lo que esperas gastar y ahorrar cada mes.</span>
+          </div>
+          <div class="flow-step">
+            <strong>3. Meses</strong>
+            <span>Registras lo real de cada mes. Esto compara realidad vs plan y actualiza tu saldo.</span>
+          </div>
+          <div class="flow-step">
+            <strong>4. Inicio</strong>
+            <span>Te resume el avance total: saldo, superávit, metas y estado general.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-kpi">
+        <div class="card">
+          <div class="card-title">Saldo actual</div>
+          <div id="kpi-balance" class="kpi-value value-primary">MX$0</div>
+          <div class="muted">último saldo acumulado</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Superávit mensual</div>
+          <div id="kpi-surplus" class="kpi-value value-success">MX$0</div>
+          <div class="muted">ingresos menos gastos</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Meta principal</div>
+          <div id="kpi-goal-progress" class="kpi-value value-secondary">0%</div>
+          <div id="kpi-goal-label" class="muted">sin meta</div>
+        </div>
+      </div>
+
+      <div class="grid-two">
+        <div class="card">
+          <div class="section-head">
+            <div class="card-title">Progreso</div>
+            <div id="goal-progress-title" style="font-weight:800;margin-top:.35rem">Meta principal</div>
+          </div>
+          <div class="inline" style="justify-content:space-between;margin-bottom:.55rem">
+            <span id="goal-progress-left" class="muted">MX$0</span>
+            <span id="goal-progress-right" class="muted">MX$0</span>
+          </div>
+          <div class="progress"><div id="goal-progress-fill" class="progress-fill"></div></div>
+          <div id="goal-progress-summary" class="muted" style="margin-top:.7rem"></div>
+        </div>
+
+        <div class="card">
+          <div class="section-head">
+            <div class="card-title">Otras metas</div>
+            <div class="muted" style="margin-top:.35rem">Agrega metas secundarias y lleva seguimiento.</div>
+          </div>
+          <div class="auth-actions">
+            <input id="goal-name" type="text" placeholder="Nombre de la meta">
+            <div class="inline">
+              <input id="goal-target" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0" style="flex:1">
+              <select id="goal-icon" style="max-width:170px">
+                <option value="✈️">✈️ Viaje</option>
+                <option value="💳">💳 Deuda</option>
+                <option value="🚗">🚗 Auto</option>
+                <option value="🏠">🏠 Casa</option>
+                <option value="💎">💎 Lujo</option>
+                <option value="⭐">⭐ Otro</option>
+              </select>
+            </div>
+            <button id="add-goal-btn" class="btn btn-primary" type="button">Agregar meta</button>
+          </div>
+          <div id="goal-list" class="goal-list" style="margin-top:1rem"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screen-plan" class="screen">
+      <div class="section-head">
+        <div class="section-title">Mi <span class="gradient">Plan</span></div>
+        <p class="muted">Ajusta tu presupuesto base y guarda escenarios.</p>
+      </div>
+
+      <div class="flow-card">
+        <div class="card-title">Qué editas aquí</div>
+        <div class="context-note">Todo lo de esta pantalla es <strong>planeado mensual</strong>. No es lo que ya pasó; eso va en <strong>Meses</strong>.</div>
+      </div>
+
+      <div class="grid-two">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:.9rem">Ingresos</div>
+          <div class="field-row"><div class="field-label"><label>Sueldo neto</label><div class="field-help">Tu ingreso fijo promedio cada mes, después de impuestos.</div></div><input id="plan-salary" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Ingreso extra</label><div class="field-help">Dinero extra frecuente: freelance, comisiones, rentas, etc.</div></div><input id="plan-extra-income" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Otros ingresos</label><div class="field-help">Entradas ocasionales que sí quieres contar en tu planeación mensual.</div></div><input id="plan-other-income" type="text" inputmode="decimal" data-currency="true"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="margin-bottom:.9rem">Ahorro y meta</div>
+          <div class="field-row"><div class="field-label"><label>Ahorro actual</label><div class="field-help">Lo que ya tienes guardado hoy y sirve como punto de partida.</div></div><input id="plan-start-savings" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Meta principal</label><div class="field-help">Monto final que quieres alcanzar con tu objetivo principal.</div></div><input id="plan-goal-amount" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Aportación mensual objetivo</label><div class="field-help">Lo que planeas apartar cada mes para avanzar hacia esa meta.</div></div><input id="plan-target-monthly" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Rendimiento anual (%)</label><div class="field-help">Opcional: rendimiento estimado de una inversión tipo CETES.</div></div><input id="plan-apy" type="number" step="0.1"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="margin-bottom:.9rem">Gastos fijos</div>
+          <div class="field-row"><div class="field-label"><label>Renta / hipoteca</label><div class="field-help">Pago fijo de vivienda que casi no cambia mes a mes.</div></div><input id="plan-rent" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Servicios</label><div class="field-help">Luz, agua, internet, gas, celular o similares.</div></div><input id="plan-services" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Seguros</label><div class="field-help">Auto, gastos médicos, vida u otros pagos recurrentes.</div></div><input id="plan-insurance" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Suscripciones</label><div class="field-help">Netflix, Spotify, apps, membresías y cobros automáticos.</div></div><input id="plan-subscriptions" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Deudas</label><div class="field-help">Pago mensual de tarjetas, préstamos o créditos.</div></div><input id="plan-debt" type="text" inputmode="decimal" data-currency="true"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="margin-bottom:.9rem">Gastos variables</div>
+          <div class="field-row"><div class="field-label"><label>Comida</label><div class="field-help">Súper, comidas fuera y compras del día a día.</div></div><input id="plan-food" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Transporte</label><div class="field-help">Gasolina, Uber, camión, metro, estacionamiento, etc.</div></div><input id="plan-transport" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Entretenimiento</label><div class="field-help">Salidas, cine, hobbies o gastos de ocio.</div></div><input id="plan-fun" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Salud</label><div class="field-help">Medicinas, consultas y gastos de bienestar.</div></div><input id="plan-health" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Otros</label><div class="field-help">Cualquier gasto planeado que no caiga en otra categoría.</div></div><input id="plan-other-expenses" type="text" inputmode="decimal" data-currency="true"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <div class="inline" style="justify-content:space-between;margin-bottom:1rem">
+          <div>
+            <div class="card-title">Resumen del plan</div>
+            <div id="plan-summary" class="muted" style="margin-top:.3rem"></div>
+          </div>
+          <div class="inline">
+            <input id="snapshot-name" type="text" placeholder="Nombre del escenario" style="max-width:220px">
+            <button id="save-snapshot-btn" class="btn btn-primary" type="button">Guardar escenario</button>
+          </div>
+        </div>
+        <div class="grid-kpi">
+          <div>
+            <div class="small-label">Ingreso mensual</div>
+            <div id="plan-income-kpi" class="kpi-value value-secondary">MX$0</div>
+          </div>
+          <div>
+            <div class="small-label">Gasto mensual</div>
+            <div id="plan-expense-kpi" class="kpi-value value-danger">MX$0</div>
+          </div>
+          <div>
+            <div class="small-label">Superávit</div>
+            <div id="plan-surplus-kpi" class="kpi-value value-success">MX$0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <div class="card-title" style="margin-bottom:1rem">Proyección</div>
+        <div style="height:300px"><canvas id="plan-chart"></canvas></div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <div class="card-title" style="margin-bottom:1rem">Escenarios guardados</div>
+        <div id="snapshot-list" class="snapshot-list"></div>
+      </div>
+    </section>
+
+    <section id="screen-tracker" class="screen">
+      <div class="section-head">
+        <div class="section-title">Registro <span class="gradient">Mensual</span></div>
+        <p class="muted">Registra cada mes y compáralo contra tu plan.</p>
+      </div>
+
+      <div class="flow-card">
+        <div class="card-title">Qué editas aquí</div>
+        <div class="context-note">Aquí capturas lo que <strong>sí pasó en la vida real</strong>. Esto no cambia tu presupuesto base; solo registra resultados reales.</div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-title" style="margin-bottom:.8rem">Progreso real</div>
+        <div class="inline" style="justify-content:space-between;margin-bottom:.55rem">
+          <span id="tracker-progress-left" class="muted">MX$0</span>
+          <span id="tracker-progress-right" class="muted">MX$0</span>
+        </div>
+        <div class="progress"><div id="tracker-progress-fill" class="progress-fill"></div></div>
+        <div id="tracker-progress-summary" class="muted" style="margin-top:.7rem"></div>
+      </div>
+
+      <div id="month-grid" class="month-grid"></div>
+
+      <div class="card" style="margin-top:1rem">
+        <div class="card-title" style="margin-bottom:1rem">Historial</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Mes</th>
+              <th>Ingreso</th>
+              <th>Gasto</th>
+              <th>Ahorrado</th>
+              <th>Saldo</th>
+            </tr>
+          </thead>
+          <tbody id="tracker-table"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div id="month-modal" class="modal-wrap hidden">
+    <div class="modal-box">
+      <div class="wizard-title" id="month-modal-title" style="font-size:1.45rem;font-weight:800;margin-bottom:.25rem">Registrar mes</div>
+      <p class="muted" style="margin-bottom:1rem">Captura lo que pasó realmente en ese mes. Estos datos alimentan el historial y comparan realidad vs plan.</p>
+      <div class="auth-actions">
+        <input id="month-income" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+        <input id="month-expense" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+        <input id="month-saved" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+        <div class="actions-end">
+          <button id="month-delete-btn" class="btn btn-danger hidden" type="button">Eliminar</button>
+          <button class="btn btn-secondary" type="button" onclick="closeMonthModal()">Cancelar</button>
+          <button id="month-save-btn" class="btn btn-primary" type="button">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="logout-modal" class="modal-wrap hidden">
+    <div class="modal-box">
+      <div class="wizard-title" style="font-size:1.45rem;font-weight:800;margin-bottom:.35rem">Cerrar sesión</div>
+      <p class="muted" style="line-height:1.5;margin-bottom:1rem">Tus datos seguirán guardados en Supabase y podrás entrar después.</p>
+      <div class="actions-end">
+        <button class="btn btn-secondary" type="button" onclick="toggleLogoutModal(false)">Cancelar</button>
+        <button id="confirm-logout-btn" class="btn btn-primary" type="button">Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const MONTHS = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+    const MONTHS_SHORT = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+    const STORAGE_KEYS = {
+      plan: "f4u_plan_v2",
+      goals: "f4u_goals_v2",
+      months: "f4u_months_v2",
+      snapshots: "f4u_snapshots_v2",
+      onboarding: "f4u_onboarding_done_v2"
+    };
+    const MONEY_INPUT_IDS = [
+      "ob-salary","ob-extra-income","ob-rent","ob-food","ob-transport","ob-debt","ob-services","ob-other-expenses",
+      "ob-start-savings","ob-goal-amount","goal-target","plan-salary","plan-extra-income","plan-other-income",
+      "plan-start-savings","plan-goal-amount","plan-target-monthly","plan-rent","plan-services","plan-insurance",
+      "plan-subscriptions","plan-debt","plan-food","plan-transport","plan-fun","plan-health","plan-other-expenses",
+      "month-income","month-expense","month-saved","snapshot-goal-saved"
+    ];
+    const PLAN_FIELDS = [
+      "plan-salary","plan-extra-income","plan-other-income","plan-start-savings","plan-goal-amount",
+      "plan-target-monthly","plan-apy","plan-rent","plan-services","plan-insurance","plan-subscriptions",
+      "plan-debt","plan-food","plan-transport","plan-fun","plan-health","plan-other-expenses"
+    ];
+
+    const SUPABASE_URL = "https://nngymebkfkpppcmlhsfw.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uZ3ltZWJrZmtwcHBjbWxoc2Z3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMDEzNzksImV4cCI6MjA4Nzc3NzM3OX0.O_mdIWl4ydEqSugQXOWLVX2PYRYFy1Rdtg-E5jQ2t28";
+    const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const state = {
+      currentUser: null,
+      screen: "dashboard",
+      wizardStep: 0,
+      plan: {},
+      goals: [],
+      months: {},
+      snapshots: [],
+      syncTimer: null,
+      planChart: null,
+      editingMonth: null
+    };
+
+    function byId(id){ return document.getElementById(id); }
+    function safeJSONParse(value, fallback){
+      try { return JSON.parse(value); } catch (_) { return fallback; }
+    }
+    function getLocal(key, fallback){
+      const value = localStorage.getItem(key);
+      return value === null ? fallback : safeJSONParse(value, fallback);
+    }
+    function setLocal(key, value){
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+    function fmtMoney(value){
+      const amount = Number(value || 0);
+      return (amount < 0 ? "-" : "") + "MX$" + Math.abs(Math.round(amount)).toLocaleString("es-MX");
+    }
+    function parseAmount(value){
+      const normalized = String(value ?? "").replace(/[^\d.-]/g, "");
+      const amount = Number(normalized);
+      return Number.isFinite(amount) ? amount : 0;
+    }
+    function getAmount(id){
+      const input = byId(id);
+      return input ? parseAmount(input.value) : 0;
+    }
+    function setCurrencyInputValue(input, value){
+      if (!input) return;
+      const amount = Number(value || 0);
+      input.value = amount ? fmtMoney(amount) : "";
+    }
+    function bindCurrencyInput(input){
+      if (!input || input.dataset.currencyBound === "true") return;
+      input.dataset.currencyBound = "true";
+      input.addEventListener("focus", () => {
+        const amount = parseAmount(input.value);
+        input.value = amount ? String(amount) : "";
+      });
+      input.addEventListener("blur", () => {
+        setCurrencyInputValue(input, parseAmount(input.value));
+      });
+    }
+    function refreshCurrencyInputs(){
+      document.querySelectorAll("[data-currency='true']").forEach((input) => {
+        bindCurrencyInput(input);
+        if (document.activeElement !== input) {
+          setCurrencyInputValue(input, parseAmount(input.value));
+        }
+      });
+    }
+    function showLoggedOutState(){
+      byId("app-loading").classList.add("hidden");
+      byId("auth-wrap").classList.remove("hidden");
+      byId("app-shell").style.display = "none";
+    }
+    function showToast(message){
+      const toast = byId("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+    function setMessage(type, text){
+      const error = byId("auth-error");
+      const success = byId("auth-success");
+      error.className = "message error";
+      success.className = "message success";
+      if (!text) return;
+      const target = type === "error" ? error : success;
+      target.textContent = text;
+      target.classList.add("show");
+    }
+    function authErrorText(message){
+      const msg = String(message || "");
+      if (msg.includes("Invalid login")) return "Correo o contraseña incorrectos.";
+      if (msg.includes("Email not confirmed")) return "Primero confirma tu correo.";
+      if (msg.includes("User already registered")) return "Ese correo ya existe.";
+      if (msg.includes("Password should be")) return "La contraseña debe tener al menos 6 caracteres.";
+      if (msg.includes("rate limit")) return "Demasiados intentos. Espera unos minutos.";
+      return msg || "Ocurrió un error.";
+    }
+    function defaultPlan(){
+      return {
+        "plan-salary": 18000,
+        "plan-extra-income": 0,
+        "plan-other-income": 0,
+        "plan-start-savings": 0,
+        "plan-goal-amount": 50000,
+        "plan-target-monthly": 3500,
+        "plan-apy": 4.5,
+        "plan-rent": 7500,
+        "plan-services": 1000,
+        "plan-insurance": 0,
+        "plan-subscriptions": 300,
+        "plan-debt": 0,
+        "plan-food": 3000,
+        "plan-transport": 900,
+        "plan-fun": 700,
+        "plan-health": 0,
+        "plan-other-expenses": 0,
+        goalName: "Meta principal",
+        goalMonth: new Date().getMonth(),
+        goalYear: new Date().getFullYear()
+      };
+    }
+    function hydrateStateFromLocal(){
+      state.plan = Object.assign(defaultPlan(), getLocal(STORAGE_KEYS.plan, {}));
+      state.goals = getLocal(STORAGE_KEYS.goals, []);
+      state.months = getLocal(STORAGE_KEYS.months, {});
+      state.snapshots = getLocal(STORAGE_KEYS.snapshots, []);
+    }
+    function persistLocal(){
+      setLocal(STORAGE_KEYS.plan, state.plan);
+      setLocal(STORAGE_KEYS.goals, state.goals);
+      setLocal(STORAGE_KEYS.months, state.months);
+      setLocal(STORAGE_KEYS.snapshots, state.snapshots);
+      if (state.currentUser) {
+        clearTimeout(state.syncTimer);
+        state.syncTimer = setTimeout(saveCloudData, 800);
+      }
+    }
+    function setSync(status){
+      byId("sync-dot").className = "sync-dot" + (status === "syncing" ? " syncing" : "");
+      byId("sync-label").textContent = status === "syncing" ? "Guardando..." : "Sincronizado";
+    }
+    function currentPlanValues(){
+      const p = state.plan;
+      const income = Number(p["plan-salary"] || 0) + Number(p["plan-extra-income"] || 0) + Number(p["plan-other-income"] || 0);
+      const expenses =
+        Number(p["plan-rent"] || 0) +
+        Number(p["plan-services"] || 0) +
+        Number(p["plan-insurance"] || 0) +
+        Number(p["plan-subscriptions"] || 0) +
+        Number(p["plan-debt"] || 0) +
+        Number(p["plan-food"] || 0) +
+        Number(p["plan-transport"] || 0) +
+        Number(p["plan-fun"] || 0) +
+        Number(p["plan-health"] || 0) +
+        Number(p["plan-other-expenses"] || 0);
+      const targetMonthly = Number(p["plan-target-monthly"] || 0);
+      const apy = Number(p["plan-apy"] || 0);
+      const startSavings = Number(p["plan-start-savings"] || 0);
+      const goal = Number(p["plan-goal-amount"] || 0);
+      return {
+        income,
+        expenses,
+        surplus: income - expenses,
+        targetMonthly,
+        monthlyRate: Math.pow(1 + apy / 100, 1 / 12) - 1,
+        startSavings,
+        goal
+      };
+    }
+    function getPrimaryGoal(){
+      if (state.plan.goalName && Number(state.plan["plan-goal-amount"] || 0) > 0) {
+        return {
+          id: "primary",
+          name: state.plan.goalName,
+          target: Number(state.plan["plan-goal-amount"] || 0),
+          saved: currentBalance(),
+          icon: "🎯"
+        };
+      }
+      return null;
+    }
+    function currentBalance(){
+      const monthIndexes = Object.keys(state.months).map(Number).sort((a,b) => a - b);
+      if (monthIndexes.length) {
+        const last = monthIndexes[monthIndexes.length - 1];
+        return Number(state.months[last].balanceAfter || 0);
+      }
+      return Number(state.plan["plan-start-savings"] || 0);
+    }
+    function projectBalances(){
+      const values = currentPlanValues();
+      const balances = [];
+      let balance = values.startSavings;
+      for (let i = 0; i < 12; i += 1) {
+        if (state.months[i]) {
+          balance = Number(state.months[i].balanceAfter || balance);
+        } else {
+          balance = balance * (1 + values.monthlyRate) + values.targetMonthly;
+        }
+        balances.push(Math.round(balance));
+      }
+      return balances;
+    }
+    function renderUser(){
+      if (!state.currentUser) return;
+      const email = state.currentUser.email || "usuario";
+      const alias = email.split("@")[0];
+      byId("user-name").textContent = alias;
+      byId("user-badge").textContent = alias.slice(0,1).toUpperCase();
+    }
+    function renderDashboard(){
+      const values = currentPlanValues();
+      const balance = currentBalance();
+      const primaryGoal = getPrimaryGoal();
+      const progress = primaryGoal ? Math.min(100, (balance / primaryGoal.target) * 100) : 0;
+
+      byId("hero-title").textContent = primaryGoal ? primaryGoal.name : "Tu centro financiero";
+      byId("hero-sub").textContent = primaryGoal
+        ? "Así va tu avance hacia " + primaryGoal.name + "."
+        : "Define una meta principal para medir tu progreso.";
+      byId("kpi-balance").textContent = fmtMoney(balance);
+      byId("kpi-surplus").textContent = fmtMoney(values.surplus);
+      byId("kpi-surplus").className = "kpi-value " + (values.surplus >= 0 ? "value-success" : "value-danger");
+      byId("kpi-goal-progress").textContent = primaryGoal ? progress.toFixed(1) + "%" : "Sin meta";
+      byId("kpi-goal-label").textContent = primaryGoal ? primaryGoal.name : "configúrala en Mi Plan";
+
+      byId("goal-progress-title").textContent = primaryGoal ? primaryGoal.name : "Meta principal";
+      byId("goal-progress-left").textContent = "Actual: " + fmtMoney(balance);
+      byId("goal-progress-right").textContent = primaryGoal ? "Meta: " + fmtMoney(primaryGoal.target) : "Meta: MX$0";
+      byId("goal-progress-fill").style.width = progress + "%";
+      byId("goal-progress-summary").textContent = primaryGoal
+        ? (progress >= 100 ? "Ya cumpliste tu meta principal." : "Te faltan " + fmtMoney(Math.max(0, primaryGoal.target - balance)) + ".")
+        : "Tu avance aparecerá aquí cuando definas una meta.";
+
+      renderGoals();
+    }
+    function renderGoals(){
+      const list = byId("goal-list");
+      const extraGoals = state.goals;
+      if (!extraGoals.length) {
+        list.innerHTML = '<div class="muted">Todavía no tienes metas secundarias.</div>';
+        return;
+      }
+      list.innerHTML = extraGoals.map((goal) => {
+        const pct = goal.target > 0 ? Math.min(100, (goal.saved / goal.target) * 100) : 0;
+        return `
+          <div class="goal-item">
+            <div class="goal-meta">
+              <div style="font-weight:800">${goal.icon} ${goal.name}</div>
+              <div class="muted">${fmtMoney(goal.saved)} de ${fmtMoney(goal.target)} · ${pct.toFixed(0)}%</div>
+              <div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>
+            </div>
+            <div class="goal-actions">
+              <input type="text" inputmode="decimal" data-currency="true" value="${fmtMoney(goal.saved)}" style="max-width:140px" onchange="updateGoalSaved('${goal.id}', this.value)">
+              <button class="btn btn-danger" type="button" onclick="removeGoal('${goal.id}')">Eliminar</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+      refreshCurrencyInputs();
+    }
+    function renderPlan(){
+      PLAN_FIELDS.forEach((id) => {
+        const input = byId(id);
+        if (input) input.value = state.plan[id] ?? 0;
+      });
+      const values = currentPlanValues();
+      byId("plan-income-kpi").textContent = fmtMoney(values.income);
+      byId("plan-expense-kpi").textContent = fmtMoney(values.expenses);
+      byId("plan-surplus-kpi").textContent = fmtMoney(values.surplus);
+      byId("plan-surplus-kpi").className = "kpi-value " + (values.surplus >= 0 ? "value-success" : "value-danger");
+      byId("plan-summary").textContent =
+        "Tu superávit mensual es " + fmtMoney(values.surplus) +
+        ". Para tu meta principal estás apartando " + fmtMoney(values.targetMonthly) + " al mes.";
+      refreshCurrencyInputs();
+      renderSnapshots();
+      renderPlanChart();
+    }
+    function renderPlanChart(){
+      const ctx = byId("plan-chart").getContext("2d");
+      if (state.planChart) state.planChart.destroy();
+      state.planChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: MONTHS_SHORT,
+          datasets: [
+            {
+              label: "Proyección",
+              data: projectBalances(),
+              borderColor: "#4263eb",
+              backgroundColor: "rgba(66,99,235,.10)",
+              fill: true,
+              tension: .35,
+              borderWidth: 3
+            },
+            {
+              label: "Meta",
+              data: Array(12).fill(Number(state.plan["plan-goal-amount"] || 0)),
+              borderColor: "#f43f5e",
+              borderDash: [6,4],
+              fill: false,
+              pointRadius: 0,
+              borderWidth: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: "#6f74a5", font: { family: "JetBrains Mono", size: 11 } }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: "#6f74a5" },
+              grid: { color: "rgba(111,116,165,.12)" }
+            },
+            y: {
+              ticks: {
+                color: "#6f74a5",
+                callback: (value) => "MX$" + Number(value).toLocaleString("es-MX")
+              },
+              grid: { color: "rgba(111,116,165,.12)" }
+            }
+          }
+        }
+      });
+    }
+    function renderSnapshots(){
+      const list = byId("snapshot-list");
+      if (!state.snapshots.length) {
+        list.innerHTML = '<div class="muted">No hay escenarios guardados todavía.</div>';
+        return;
+      }
+      list.innerHTML = state.snapshots.map((snap) => `
+        <div class="snapshot-item">
+          <div class="snapshot-meta">
+            <div style="font-weight:800">${snap.name}</div>
+            <div class="muted">${snap.date}</div>
+          </div>
+          <div class="snapshot-actions">
+            <button class="btn btn-secondary" type="button" onclick="loadSnapshot('${snap.id}')">Cargar</button>
+            <button class="btn btn-danger" type="button" onclick="removeSnapshot('${snap.id}')">Eliminar</button>
+          </div>
+        </div>
+      `).join("");
+    }
+    function renderTracker(){
+      const primaryGoal = getPrimaryGoal();
+      const balance = currentBalance();
+      const progress = primaryGoal ? Math.min(100, (balance / primaryGoal.target) * 100) : 0;
+      byId("tracker-progress-left").textContent = "Actual: " + fmtMoney(balance);
+      byId("tracker-progress-right").textContent = primaryGoal ? "Meta: " + fmtMoney(primaryGoal.target) : "Sin meta";
+      byId("tracker-progress-fill").style.width = progress + "%";
+      byId("tracker-progress-summary").textContent = primaryGoal
+        ? (progress >= 100 ? "Ya cumpliste tu meta." : "Vas en " + progress.toFixed(1) + "%.")
+        : "Configura una meta en Mi Plan.";
+
+      const grid = byId("month-grid");
+      const values = currentPlanValues();
+      let lastBalance = values.startSavings;
+      grid.innerHTML = MONTHS.map((month, index) => {
+        const data = state.months[index];
+        const prevExists = index === 0 || !!state.months[index - 1];
+        const locked = !(prevExists || data);
+        const saved = data ? fmtMoney(data.saved) : fmtMoney(values.targetMonthly);
+        const classes = ["month-tile"];
+        if (data) classes.push("done");
+        if (locked) classes.push("locked");
+        if (data) lastBalance = data.balanceAfter;
+        return `
+          <button class="${classes.join(" ")}" type="button" ${locked ? "disabled" : `onclick="openMonthModal(${index})"`}>
+            <div class="card-title">${month}</div>
+            <div style="font-weight:800;font-size:1.1rem;margin:.35rem 0">${data ? "Registrado" : "Pendiente"}</div>
+            <div class="muted">${data ? "Saldo: " + fmtMoney(data.balanceAfter) : "Planeado: " + saved}</div>
+          </button>
+        `;
+      }).join("");
+
+      const rows = Object.keys(state.months).map(Number).sort((a,b) => a - b);
+      byId("tracker-table").innerHTML = rows.length ? rows.map((index) => {
+        const month = state.months[index];
+        return `
+          <tr>
+            <td>${MONTHS_SHORT[index]}</td>
+            <td>${fmtMoney(month.income)}</td>
+            <td>${fmtMoney(month.expense)}</td>
+            <td>${fmtMoney(month.saved)}</td>
+            <td>${fmtMoney(month.balanceAfter)}</td>
+          </tr>
+        `;
+      }).join("") : '<tr><td colspan="5" class="muted" style="text-align:center">Sin meses registrados todavía.</td></tr>';
+    }
+    function renderAll(){
+      renderUser();
+      renderDashboard();
+      renderPlan();
+      renderTracker();
+    }
+    function switchScreen(name){
+      state.screen = name;
+      document.querySelectorAll(".screen").forEach((screen) => screen.classList.remove("active"));
+      document.querySelectorAll(".nav-tab").forEach((tab) => tab.classList.remove("active"));
+      byId("screen-" + name).classList.add("active");
+      document.querySelector(`.nav-tab[data-screen="${name}"]`).classList.add("active");
+      if (name === "dashboard") renderDashboard();
+      if (name === "plan") renderPlan();
+      if (name === "tracker") renderTracker();
+    }
+    function setPlanFromInputs(){
+      PLAN_FIELDS.forEach((id) => {
+        const input = byId(id);
+        state.plan[id] = id === "plan-apy" ? Number(input.value || 0) : parseAmount(input.value);
+      });
+      persistLocal();
+      renderDashboard();
+      renderPlan();
+      renderTracker();
+    }
+    function addGoal(){
+      const name = byId("goal-name").value.trim();
+      const target = getAmount("goal-target");
+      const icon = byId("goal-icon").value;
+      if (!name || !target) {
+        showToast("Ponle nombre y monto a la meta.");
+        return;
+      }
+      state.goals.unshift({
+        id: String(Date.now()),
+        name,
+        target,
+        saved: 0,
+        icon
+      });
+      byId("goal-name").value = "";
+      byId("goal-target").value = "";
+      persistLocal();
+      renderGoals();
+      refreshCurrencyInputs();
+      showToast("Meta agregada.");
+    }
+    function updateGoalSaved(id, value){
+      const goal = state.goals.find((item) => item.id === id);
+      if (!goal) return;
+      goal.saved = Math.max(0, Math.min(goal.target, parseAmount(value)));
+      persistLocal();
+      renderGoals();
+    }
+    function removeGoal(id){
+      state.goals = state.goals.filter((goal) => goal.id !== id);
+      persistLocal();
+      renderGoals();
+      showToast("Meta eliminada.");
+    }
+    function saveSnapshot(){
+      const name = byId("snapshot-name").value.trim();
+      if (!name) {
+        showToast("Ponle un nombre al escenario.");
+        return;
+      }
+      state.snapshots.unshift({
+        id: String(Date.now()),
+        name,
+        date: new Date().toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" }),
+        plan: { ...state.plan },
+        goals: JSON.parse(JSON.stringify(state.goals)),
+        months: JSON.parse(JSON.stringify(state.months))
+      });
+      byId("snapshot-name").value = "";
+      persistLocal();
+      renderSnapshots();
+      showToast("Escenario guardado.");
+    }
+    function loadSnapshot(id){
+      const snap = state.snapshots.find((item) => item.id === id);
+      if (!snap) return;
+      state.plan = { ...defaultPlan(), ...snap.plan };
+      state.goals = JSON.parse(JSON.stringify(snap.goals || []));
+      state.months = JSON.parse(JSON.stringify(snap.months || {}));
+      persistLocal();
+      renderAll();
+      showToast("Escenario cargado.");
+    }
+    function removeSnapshot(id){
+      state.snapshots = state.snapshots.filter((snap) => snap.id !== id);
+      persistLocal();
+      renderSnapshots();
+    }
+    function monthBalanceUntil(index){
+      let balance = Number(state.plan["plan-start-savings"] || 0);
+      const values = currentPlanValues();
+      for (let i = 0; i < index; i += 1) {
+        if (state.months[i]) {
+          balance = Number(state.months[i].balanceAfter || balance);
+        } else {
+          balance = balance * (1 + values.monthlyRate) + values.targetMonthly;
+        }
+      }
+      return balance;
+    }
+    function openMonthModal(index){
+      state.editingMonth = index;
+      const existing = state.months[index];
+      const values = currentPlanValues();
+      byId("month-modal-title").textContent = "Registrar " + MONTHS[index];
+      byId("month-income").value = existing ? existing.income : values.income;
+      byId("month-expense").value = existing ? existing.expense : values.expenses;
+      byId("month-saved").value = existing ? existing.saved : Math.max(0, values.surplus);
+      byId("month-delete-btn").classList.toggle("hidden", !existing);
+      byId("month-modal").classList.remove("hidden");
+      refreshCurrencyInputs();
+    }
+    function closeMonthModal(){
+      state.editingMonth = null;
+      byId("month-modal").classList.add("hidden");
+    }
+    function saveMonth(){
+      if (state.editingMonth === null) return;
+      const monthIndex = state.editingMonth;
+      const income = getAmount("month-income");
+      const expense = getAmount("month-expense");
+      const saved = getAmount("month-saved");
+      const previousBalance = monthBalanceUntil(monthIndex);
+      const balanceAfter = previousBalance + saved;
+      state.months[monthIndex] = { income, expense, saved, balanceAfter };
+      persistLocal();
+      closeMonthModal();
+      renderTracker();
+      renderDashboard();
+      showToast("Mes guardado.");
+    }
+    function deleteMonth(){
+      if (state.editingMonth === null) return;
+      delete state.months[state.editingMonth];
+      persistLocal();
+      closeMonthModal();
+      renderTracker();
+      renderDashboard();
+      showToast("Mes eliminado.");
+    }
+    function populateGoalDateSelects(){
+      const monthSelect = byId("ob-goal-month");
+      const yearSelect = byId("ob-goal-year");
+      monthSelect.innerHTML = MONTHS.map((month, index) => `<option value="${index}">${month}</option>`).join("");
+      const nowYear = new Date().getFullYear();
+      yearSelect.innerHTML = [nowYear, nowYear + 1, nowYear + 2].map((year) => `<option value="${year}">${year}</option>`).join("");
+    }
+    function renderWizardDots(){
+      byId("wizard-steps").innerHTML = [0,1,2,3].map((step) => `<div class="wizard-dot${state.wizardStep === step ? " active" : ""}"></div>`).join("");
+      document.querySelectorAll(".wizard-step").forEach((step, index) => {
+        step.classList.toggle("active", index === state.wizardStep);
+      });
+      if (state.wizardStep === 3) updateWizardSummary();
+    }
+    function wizardNext(){
+      if (state.wizardStep === 1) {
+        if (getAmount("ob-salary") <= 0) {
+          showToast("Pon tu sueldo mensual.");
+          return;
+        }
+      }
+      state.wizardStep = Math.min(3, state.wizardStep + 1);
+      renderWizardDots();
+    }
+    function wizardPrev(){
+      state.wizardStep = Math.max(0, state.wizardStep - 1);
+      renderWizardDots();
+    }
+    function updateWizardSummary(){
+      const income = getAmount("ob-salary") + getAmount("ob-extra-income");
+      const expenses =
+        getAmount("ob-rent") +
+        getAmount("ob-food") +
+        getAmount("ob-transport") +
+        getAmount("ob-debt") +
+        getAmount("ob-services") +
+        getAmount("ob-other-expenses");
+      const surplus = income - expenses;
+      const goalAmount = getAmount("ob-goal-amount");
+      const currentSavings = getAmount("ob-start-savings");
+      const month = Number(byId("ob-goal-month").value || 0);
+      const year = Number(byId("ob-goal-year").value || new Date().getFullYear());
+      const diffMonths = Math.max(1, (year - new Date().getFullYear()) * 12 + (month - new Date().getMonth()) + 1);
+      const required = goalAmount > currentSavings ? (goalAmount - currentSavings) / diffMonths : 0;
+      byId("wizard-summary").innerHTML =
+        `<div style="font-weight:800;margin-bottom:.35rem">Tu resumen</div>
+         <div class="muted" style="line-height:1.6">
+           Superávit estimado: <strong>${fmtMoney(surplus)}</strong><br>
+           Necesitarías apartar: <strong>${fmtMoney(required)}</strong> al mes para llegar a tu meta.<br>
+           Fecha objetivo: <strong>${MONTHS[month]} ${year}</strong>
+         </div>`;
+    }
+    function finishOnboarding(){
+      const salary = getAmount("ob-salary");
+      if (salary <= 0) {
+        showToast("Tu sueldo mensual es obligatorio.");
+        return;
+      }
+      const month = Number(byId("ob-goal-month").value || 0);
+      const year = Number(byId("ob-goal-year").value || new Date().getFullYear());
+      const goalAmount = getAmount("ob-goal-amount");
+      const startSavings = getAmount("ob-start-savings");
+      const diffMonths = Math.max(1, (year - new Date().getFullYear()) * 12 + (month - new Date().getMonth()) + 1);
+      const targetMonthly = goalAmount > startSavings ? Math.round((goalAmount - startSavings) / diffMonths) : 0;
+
+      state.plan = {
+        ...defaultPlan(),
+        "plan-salary": salary,
+        "plan-extra-income": getAmount("ob-extra-income"),
+        "plan-other-income": 0,
+        "plan-start-savings": startSavings,
+        "plan-goal-amount": goalAmount,
+        "plan-target-monthly": targetMonthly,
+        "plan-apy": 4.5,
+        "plan-rent": getAmount("ob-rent"),
+        "plan-services": getAmount("ob-services"),
+        "plan-insurance": 0,
+        "plan-subscriptions": 0,
+        "plan-debt": getAmount("ob-debt"),
+        "plan-food": getAmount("ob-food"),
+        "plan-transport": getAmount("ob-transport"),
+        "plan-fun": 0,
+        "plan-health": 0,
+        "plan-other-expenses": getAmount("ob-other-expenses"),
+        goalName: byId("ob-goal-name").value.trim() || "Meta principal",
+        goalMonth: month,
+        goalYear: year
+      };
+      setLocal(STORAGE_KEYS.onboarding, true);
+      persistLocal();
+      byId("onboarding-wrap").classList.add("hidden");
+      renderAll();
+      switchScreen("dashboard");
+      showToast("Plan inicial guardado.");
+    }
+    function openOnboarding(editMode){
+      state.wizardStep = editMode ? 1 : 0;
+      byId("onboarding-wrap").classList.remove("hidden");
+      byId("ob-salary").value = state.plan["plan-salary"] || "";
+      byId("ob-extra-income").value = state.plan["plan-extra-income"] || "";
+      byId("ob-rent").value = state.plan["plan-rent"] || "";
+      byId("ob-food").value = state.plan["plan-food"] || "";
+      byId("ob-transport").value = state.plan["plan-transport"] || "";
+      byId("ob-debt").value = state.plan["plan-debt"] || "";
+      byId("ob-services").value = state.plan["plan-services"] || "";
+      byId("ob-other-expenses").value = state.plan["plan-other-expenses"] || "";
+      byId("ob-start-savings").value = state.plan["plan-start-savings"] || "";
+      byId("ob-goal-name").value = state.plan.goalName || "";
+      byId("ob-goal-amount").value = state.plan["plan-goal-amount"] || "";
+      byId("ob-goal-month").value = state.plan.goalMonth ?? new Date().getMonth();
+      byId("ob-goal-year").value = state.plan.goalYear ?? new Date().getFullYear();
+      renderWizardDots();
+      refreshCurrencyInputs();
+    }
+    function toggleLogoutModal(show){
+      byId("logout-modal").classList.toggle("hidden", !show);
+    }
+
+    async function saveCloudData(){
+      if (!state.currentUser) return;
+      try {
+        setSync("syncing");
+        const payload = {
+          user_id: state.currentUser.id,
+          plan_data: JSON.stringify(state.plan),
+          monthly_data: JSON.stringify(state.months),
+          goals_data: JSON.stringify(state.goals),
+          snaps_data: JSON.stringify(state.snapshots),
+          updated_at: new Date().toISOString()
+        };
+        const { error } = await supa.from("user_data").upsert(payload, { onConflict: "user_id" });
+        if (error) throw error;
+        setSync("ok");
+      } catch (error) {
+        console.error(error);
+        setSync("ok");
+        showToast("No se pudo sincronizar en este momento.");
+      }
+    }
+    async function loadCloudData(userId){
+      const { data, error } = await supa.from("user_data").select("*").eq("user_id", userId).maybeSingle();
+      if (error) {
+        console.error(error);
+        return;
+      }
+      if (!data) return;
+      state.plan = Object.assign(defaultPlan(), safeJSONParse(data.plan_data, {}));
+      state.months = safeJSONParse(data.monthly_data, {});
+      state.goals = safeJSONParse(data.goals_data, []);
+      state.snapshots = safeJSONParse(data.snaps_data, []);
+      persistLocal();
+    }
+    async function handleGoogleAuth(button){
+      setMessage();
+      button.disabled = true;
+      try {
+        const redirectTo = window.location.origin;
+        const { error } = await supa.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo,
+            queryParams: { access_type: "offline", prompt: "consent" }
+          }
+        });
+        if (error) throw error;
+      } catch (error) {
+        setMessage("error", authErrorText(error.message));
+        button.disabled = false;
+      }
+    }
+    async function login(){
+      setMessage();
+      const email = byId("login-email").value.trim();
+      const password = byId("login-password").value;
+      if (!email || !password) {
+        setMessage("error", "Completa correo y contraseña.");
+        return;
+      }
+      const btn = byId("login-btn");
+      btn.disabled = true;
+      btn.textContent = "Entrando...";
+      const { data, error } = await supa.auth.signInWithPassword({ email, password });
+      btn.disabled = false;
+      btn.textContent = "Entrar";
+      if (error) {
+        setMessage("error", authErrorText(error.message));
+        return;
+      }
+      await onAuthSuccess(data.user);
+    }
+    async function register(){
+      setMessage();
+      const email = byId("register-email").value.trim();
+      const password = byId("register-password").value;
+      const confirm = byId("register-password-2").value;
+      if (!email || !password || !confirm) {
+        setMessage("error", "Completa todos los campos.");
+        return;
+      }
+      if (password !== confirm) {
+        setMessage("error", "Las contraseñas no coinciden.");
+        return;
+      }
+      if (password.length < 6) {
+        setMessage("error", "La contraseña debe tener mínimo 6 caracteres.");
+        return;
+      }
+      const btn = byId("register-btn");
+      btn.disabled = true;
+      btn.textContent = "Creando...";
+      const { data, error } = await supa.auth.signUp({ email, password });
+      btn.disabled = false;
+      btn.textContent = "Crear cuenta";
+      if (error) {
+        setMessage("error", authErrorText(error.message));
+        return;
+      }
+      if (data.user && data.user.identities && data.user.identities.length === 0) {
+        setMessage("error", "Ese correo ya existe.");
+        return;
+      }
+      setMessage("success", "Cuenta creada. Revisa tu correo para confirmar.");
+    }
+    async function resetPassword(){
+      setMessage();
+      const email = byId("reset-email").value.trim();
+      if (!email) {
+        setMessage("error", "Escribe tu correo.");
+        return;
+      }
+      const { error } = await supa.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + "/?type=recovery"
+      });
+      if (error) {
+        setMessage("error", authErrorText(error.message));
+        return;
+      }
+      setMessage("success", "Te mandamos un link para restablecer tu contraseña.");
+    }
+    async function logout(){
+      await supa.auth.signOut();
+      state.currentUser = null;
+      toggleLogoutModal(false);
+      byId("app-shell").style.display = "none";
+      byId("auth-wrap").classList.remove("hidden");
+      byId("login-password").value = "";
+      setMessage();
+    }
+    async function onAuthSuccess(user){
+      state.currentUser = user;
+      renderUser();
+      await loadCloudData(user.id);
+      byId("auth-wrap").classList.add("hidden");
+      byId("app-loading").classList.add("hidden");
+      byId("app-shell").style.display = "block";
+      renderAll();
+      if (!getLocal(STORAGE_KEYS.onboarding, false)) {
+        openOnboarding(false);
+      }
+    }
+    function showResetPanel(){
+      byId("login-panel").classList.add("hidden");
+      byId("register-panel").classList.add("hidden");
+      byId("reset-panel").classList.remove("hidden");
+      byId("tab-login").classList.remove("active");
+      byId("tab-register").classList.remove("active");
+      setMessage();
+    }
+    function showAuthPanel(type){
+      byId("login-panel").classList.toggle("hidden", type !== "login");
+      byId("register-panel").classList.toggle("hidden", type !== "register");
+      byId("reset-panel").classList.add("hidden");
+      byId("tab-login").classList.toggle("active", type === "login");
+      byId("tab-register").classList.toggle("active", type === "register");
+      setMessage();
+    }
+    function bindEvents(){
+      byId("tab-login").addEventListener("click", () => showAuthPanel("login"));
+      byId("tab-register").addEventListener("click", () => showAuthPanel("register"));
+      byId("open-reset-btn").addEventListener("click", showResetPanel);
+      byId("reset-back-btn").addEventListener("click", () => showAuthPanel("login"));
+      byId("google-login-btn").addEventListener("click", (event) => handleGoogleAuth(event.currentTarget));
+      byId("google-register-btn").addEventListener("click", (event) => handleGoogleAuth(event.currentTarget));
+      byId("login-btn").addEventListener("click", login);
+      byId("register-btn").addEventListener("click", register);
+      byId("reset-btn").addEventListener("click", resetPassword);
+      byId("logout-open-btn").addEventListener("click", () => toggleLogoutModal(true));
+      byId("confirm-logout-btn").addEventListener("click", logout);
+      byId("add-goal-btn").addEventListener("click", addGoal);
+      byId("save-snapshot-btn").addEventListener("click", saveSnapshot);
+      byId("month-save-btn").addEventListener("click", saveMonth);
+      byId("month-delete-btn").addEventListener("click", deleteMonth);
+      document.querySelectorAll(".nav-tab").forEach((tab) => {
+        tab.addEventListener("click", () => switchScreen(tab.dataset.screen));
+      });
+      PLAN_FIELDS.forEach((id) => {
+        byId(id).addEventListener("input", setPlanFromInputs);
+        if (MONEY_INPUT_IDS.includes(id)) {
+          byId(id).setAttribute("data-currency", "true");
+        }
+      });
+      ["ob-goal-amount","ob-start-savings","ob-goal-month","ob-goal-year","ob-salary","ob-extra-income","ob-rent","ob-food","ob-transport","ob-debt","ob-services","ob-other-expenses"].forEach((id) => {
+        byId(id).addEventListener("input", updateWizardSummary);
+        byId(id).addEventListener("change", updateWizardSummary);
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeMonthModal();
+          toggleLogoutModal(false);
+        }
+      });
+      byId("month-modal").addEventListener("click", (event) => {
+        if (event.target === byId("month-modal")) closeMonthModal();
+      });
+      byId("logout-modal").addEventListener("click", (event) => {
+        if (event.target === byId("logout-modal")) toggleLogoutModal(false);
+      });
+    }
+    async function checkSession(){
+      try {
+        const sessionTimeout = new Promise((resolve) => {
+          setTimeout(() => resolve({ data: { session: null }, timeout: true }), 5000);
+        });
+        supa.auth.onAuthStateChange(async (event, session) => {
+          if (event === "SIGNED_IN" && session?.user && !state.currentUser) {
+            await onAuthSuccess(session.user);
+          }
+          if (event === "SIGNED_OUT") {
+            showLoggedOutState();
+          }
+        });
+        const result = await Promise.race([supa.auth.getSession(), sessionTimeout]);
+        const session = result?.data?.session || null;
+        if (session?.user) {
+          await onAuthSuccess(session.user);
+        } else {
+          showLoggedOutState();
+        }
+      } catch (error) {
+        console.error("Error checking session", error);
+        showLoggedOutState();
+      }
+    }
+    function init(){
+      hydrateStateFromLocal();
+      populateGoalDateSelects();
+      bindEvents();
+      refreshCurrencyInputs();
+      renderWizardDots();
+      checkSession();
+    }
+
+    window.switchScreen = switchScreen;
+    window.updateGoalSaved = updateGoalSaved;
+    window.removeGoal = removeGoal;
+    window.loadSnapshot = loadSnapshot;
+    window.removeSnapshot = removeSnapshot;
+    window.openMonthModal = openMonthModal;
+    window.closeMonthModal = closeMonthModal;
+    window.wizardNext = wizardNext;
+    window.wizardPrev = wizardPrev;
+    window.finishOnboarding = finishOnboarding;
+    window.openOnboarding = openOnboarding;
+    window.toggleLogoutModal = toggleLogoutModal;
+
+    init();
+  </script>
+</body>
+</html>
