@@ -401,8 +401,8 @@
       <div id="wizard-step-1" class="wizard-step">
         <div class="wizard-title" style="font-size:1.5rem;font-weight:800;margin-bottom:.7rem">Tus ingresos</div>
         <div class="auth-actions">
-          <input id="ob-salary" type="number" placeholder="Sueldo neto mensual">
-          <input id="ob-extra-income" type="number" placeholder="Ingresos extra">
+          <input id="ob-salary" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          <input id="ob-extra-income" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
           <div class="actions-end">
             <button class="btn btn-secondary" type="button" onclick="wizardPrev()">Atrás</button>
             <button class="btn btn-primary" type="button" onclick="wizardNext()">Siguiente</button>
@@ -413,12 +413,12 @@
       <div id="wizard-step-2" class="wizard-step">
         <div class="wizard-title" style="font-size:1.5rem;font-weight:800;margin-bottom:.7rem">Tus gastos mensuales</div>
         <div class="wizard-grid">
-          <input id="ob-rent" type="number" placeholder="Renta / hipoteca">
-          <input id="ob-food" type="number" placeholder="Comida y súper">
-          <input id="ob-transport" type="number" placeholder="Transporte">
-          <input id="ob-debt" type="number" placeholder="Deudas">
-          <input id="ob-services" type="number" placeholder="Servicios">
-          <input id="ob-other-expenses" type="number" placeholder="Otros gastos">
+          <input id="ob-rent" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          <input id="ob-food" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          <input id="ob-transport" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          <input id="ob-debt" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          <input id="ob-services" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          <input id="ob-other-expenses" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
         </div>
         <div class="actions-end" style="margin-top:1rem">
           <button class="btn btn-secondary" type="button" onclick="wizardPrev()">Atrás</button>
@@ -429,9 +429,9 @@
       <div id="wizard-step-3" class="wizard-step">
         <div class="wizard-title" style="font-size:1.5rem;font-weight:800;margin-bottom:.7rem">Tu meta principal</div>
         <div class="auth-actions">
-          <input id="ob-start-savings" type="number" placeholder="Ahorro actual">
+          <input id="ob-start-savings" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
           <input id="ob-goal-name" type="text" placeholder="Nombre de tu meta (ej. Fondo de emergencia)">
-          <input id="ob-goal-amount" type="number" placeholder="Monto objetivo">
+          <input id="ob-goal-amount" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
           <div class="inline">
             <select id="ob-goal-month"></select>
             <select id="ob-goal-year"></select>
@@ -522,7 +522,7 @@
           <div class="auth-actions">
             <input id="goal-name" type="text" placeholder="Nombre de la meta">
             <div class="inline">
-              <input id="goal-target" type="number" placeholder="Monto objetivo" style="flex:1">
+              <input id="goal-target" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0" style="flex:1">
               <select id="goal-icon" style="max-width:170px">
                 <option value="✈️">✈️ Viaje</option>
                 <option value="💳">💳 Deuda</option>
@@ -548,35 +548,35 @@
       <div class="grid-two">
         <div class="card">
           <div class="card-title" style="margin-bottom:.9rem">Ingresos</div>
-          <div class="field-row"><label>Sueldo neto</label><input id="plan-salary" type="number"></div>
-          <div class="field-row"><label>Ingreso extra</label><input id="plan-extra-income" type="number"></div>
-          <div class="field-row"><label>Otros ingresos</label><input id="plan-other-income" type="number"></div>
+          <div class="field-row"><label>Sueldo neto</label><input id="plan-salary" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><label>Ingreso extra</label><input id="plan-extra-income" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><label>Otros ingresos</label><input id="plan-other-income" type="text" inputmode="decimal" data-currency="true"></div>
         </div>
 
         <div class="card">
           <div class="card-title" style="margin-bottom:.9rem">Ahorro y meta</div>
-          <div class="field-row"><label>Ahorro actual</label><input id="plan-start-savings" type="number"></div>
-          <div class="field-row"><label>Meta principal</label><input id="plan-goal-amount" type="number"></div>
-          <div class="field-row"><label>Aportación mensual objetivo</label><input id="plan-target-monthly" type="number"></div>
+          <div class="field-row"><label>Ahorro actual</label><input id="plan-start-savings" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><label>Meta principal</label><input id="plan-goal-amount" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><label>Aportación mensual objetivo</label><input id="plan-target-monthly" type="text" inputmode="decimal" data-currency="true"></div>
           <div class="field-row"><label>Rendimiento anual (%)</label><input id="plan-apy" type="number" step="0.1"></div>
         </div>
 
         <div class="card">
           <div class="card-title" style="margin-bottom:.9rem">Gastos fijos</div>
-          <div class="field-row"><label>Renta / hipoteca</label><input id="plan-rent" type="number"></div>
-          <div class="field-row"><label>Servicios</label><input id="plan-services" type="number"></div>
-          <div class="field-row"><label>Seguros</label><input id="plan-insurance" type="number"></div>
-          <div class="field-row"><label>Suscripciones</label><input id="plan-subscriptions" type="number"></div>
-          <div class="field-row"><label>Deudas</label><input id="plan-debt" type="number"></div>
+          <div class="field-row"><label>Renta / hipoteca</label><input id="plan-rent" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><label>Servicios</label><input id="plan-services" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><label>Seguros</label><input id="plan-insurance" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><label>Suscripciones</label><input id="plan-subscriptions" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><label>Deudas</label><input id="plan-debt" type="text" inputmode="decimal" data-currency="true"></div>
         </div>
 
         <div class="card">
           <div class="card-title" style="margin-bottom:.9rem">Gastos variables</div>
-          <div class="field-row"><label>Comida</label><input id="plan-food" type="number"></div>
-          <div class="field-row"><label>Transporte</label><input id="plan-transport" type="number"></div>
-          <div class="field-row"><label>Entretenimiento</label><input id="plan-fun" type="number"></div>
-          <div class="field-row"><label>Salud</label><input id="plan-health" type="number"></div>
-          <div class="field-row"><label>Otros</label><input id="plan-other-expenses" type="number"></div>
+          <div class="field-row"><label>Comida</label><input id="plan-food" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><label>Transporte</label><input id="plan-transport" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><label>Entretenimiento</label><input id="plan-fun" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><label>Salud</label><input id="plan-health" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><label>Otros</label><input id="plan-other-expenses" type="text" inputmode="decimal" data-currency="true"></div>
         </div>
       </div>
 
@@ -659,9 +659,9 @@
       <div class="wizard-title" id="month-modal-title" style="font-size:1.45rem;font-weight:800;margin-bottom:.25rem">Registrar mes</div>
       <p class="muted" style="margin-bottom:1rem">Captura lo que pasó realmente.</p>
       <div class="auth-actions">
-        <input id="month-income" type="number" placeholder="Ingreso real">
-        <input id="month-expense" type="number" placeholder="Gasto real">
-        <input id="month-saved" type="number" placeholder="Ahorro del mes">
+        <input id="month-income" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+        <input id="month-expense" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+        <input id="month-saved" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
         <div class="actions-end">
           <button id="month-delete-btn" class="btn btn-danger hidden" type="button">Eliminar</button>
           <button class="btn btn-secondary" type="button" onclick="closeMonthModal()">Cancelar</button>
@@ -694,6 +694,13 @@
       snapshots: "f4u_snapshots_v2",
       onboarding: "f4u_onboarding_done_v2"
     };
+    const MONEY_INPUT_IDS = [
+      "ob-salary","ob-extra-income","ob-rent","ob-food","ob-transport","ob-debt","ob-services","ob-other-expenses",
+      "ob-start-savings","ob-goal-amount","goal-target","plan-salary","plan-extra-income","plan-other-income",
+      "plan-start-savings","plan-goal-amount","plan-target-monthly","plan-rent","plan-services","plan-insurance",
+      "plan-subscriptions","plan-debt","plan-food","plan-transport","plan-fun","plan-health","plan-other-expenses",
+      "month-income","month-expense","month-saved","snapshot-goal-saved"
+    ];
     const PLAN_FIELDS = [
       "plan-salary","plan-extra-income","plan-other-income","plan-start-savings","plan-goal-amount",
       "plan-target-monthly","plan-apy","plan-rent","plan-services","plan-insurance","plan-subscriptions",
@@ -731,6 +738,39 @@
     function fmtMoney(value){
       const amount = Number(value || 0);
       return (amount < 0 ? "-" : "") + "MX$" + Math.abs(Math.round(amount)).toLocaleString("es-MX");
+    }
+    function parseAmount(value){
+      const normalized = String(value ?? "").replace(/[^\d.-]/g, "");
+      const amount = Number(normalized);
+      return Number.isFinite(amount) ? amount : 0;
+    }
+    function getAmount(id){
+      const input = byId(id);
+      return input ? parseAmount(input.value) : 0;
+    }
+    function setCurrencyInputValue(input, value){
+      if (!input) return;
+      const amount = Number(value || 0);
+      input.value = amount ? fmtMoney(amount) : "";
+    }
+    function bindCurrencyInput(input){
+      if (!input || input.dataset.currencyBound === "true") return;
+      input.dataset.currencyBound = "true";
+      input.addEventListener("focus", () => {
+        const amount = parseAmount(input.value);
+        input.value = amount ? String(amount) : "";
+      });
+      input.addEventListener("blur", () => {
+        setCurrencyInputValue(input, parseAmount(input.value));
+      });
+    }
+    function refreshCurrencyInputs(){
+      document.querySelectorAll("[data-currency='true']").forEach((input) => {
+        bindCurrencyInput(input);
+        if (document.activeElement !== input) {
+          setCurrencyInputValue(input, parseAmount(input.value));
+        }
+      });
     }
     function showToast(message){
       const toast = byId("toast");
@@ -914,12 +954,13 @@
               <div class="progress"><div class="progress-fill" style="width:${pct}%"></div></div>
             </div>
             <div class="goal-actions">
-              <input type="number" value="${goal.saved}" style="max-width:120px" onchange="updateGoalSaved('${goal.id}', this.value)">
+              <input type="text" inputmode="decimal" data-currency="true" value="${fmtMoney(goal.saved)}" style="max-width:140px" onchange="updateGoalSaved('${goal.id}', this.value)">
               <button class="btn btn-danger" type="button" onclick="removeGoal('${goal.id}')">Eliminar</button>
             </div>
           </div>
         `;
       }).join("");
+      refreshCurrencyInputs();
     }
     function renderPlan(){
       PLAN_FIELDS.forEach((id) => {
@@ -934,6 +975,7 @@
       byId("plan-summary").textContent =
         "Tu superávit mensual es " + fmtMoney(values.surplus) +
         ". Para tu meta principal estás apartando " + fmtMoney(values.targetMonthly) + " al mes.";
+      refreshCurrencyInputs();
       renderSnapshots();
       renderPlanChart();
     }
@@ -1073,7 +1115,7 @@
     function setPlanFromInputs(){
       PLAN_FIELDS.forEach((id) => {
         const input = byId(id);
-        state.plan[id] = Number(input.value || 0);
+        state.plan[id] = id === "plan-apy" ? Number(input.value || 0) : parseAmount(input.value);
       });
       persistLocal();
       renderDashboard();
@@ -1082,7 +1124,7 @@
     }
     function addGoal(){
       const name = byId("goal-name").value.trim();
-      const target = Number(byId("goal-target").value || 0);
+      const target = getAmount("goal-target");
       const icon = byId("goal-icon").value;
       if (!name || !target) {
         showToast("Ponle nombre y monto a la meta.");
@@ -1099,12 +1141,13 @@
       byId("goal-target").value = "";
       persistLocal();
       renderGoals();
+      refreshCurrencyInputs();
       showToast("Meta agregada.");
     }
     function updateGoalSaved(id, value){
       const goal = state.goals.find((item) => item.id === id);
       if (!goal) return;
-      goal.saved = Math.max(0, Math.min(goal.target, Number(value || 0)));
+      goal.saved = Math.max(0, Math.min(goal.target, parseAmount(value)));
       persistLocal();
       renderGoals();
     }
@@ -1170,6 +1213,7 @@
       byId("month-saved").value = existing ? existing.saved : Math.max(0, values.surplus);
       byId("month-delete-btn").classList.toggle("hidden", !existing);
       byId("month-modal").classList.remove("hidden");
+      refreshCurrencyInputs();
     }
     function closeMonthModal(){
       state.editingMonth = null;
@@ -1178,9 +1222,9 @@
     function saveMonth(){
       if (state.editingMonth === null) return;
       const monthIndex = state.editingMonth;
-      const income = Number(byId("month-income").value || 0);
-      const expense = Number(byId("month-expense").value || 0);
-      const saved = Number(byId("month-saved").value || 0);
+      const income = getAmount("month-income");
+      const expense = getAmount("month-expense");
+      const saved = getAmount("month-saved");
       const previousBalance = monthBalanceUntil(monthIndex);
       const balanceAfter = previousBalance + saved;
       state.months[monthIndex] = { income, expense, saved, balanceAfter };
@@ -1215,7 +1259,7 @@
     }
     function wizardNext(){
       if (state.wizardStep === 1) {
-        if (Number(byId("ob-salary").value || 0) <= 0) {
+        if (getAmount("ob-salary") <= 0) {
           showToast("Pon tu sueldo mensual.");
           return;
         }
@@ -1228,17 +1272,17 @@
       renderWizardDots();
     }
     function updateWizardSummary(){
-      const income = Number(byId("ob-salary").value || 0) + Number(byId("ob-extra-income").value || 0);
+      const income = getAmount("ob-salary") + getAmount("ob-extra-income");
       const expenses =
-        Number(byId("ob-rent").value || 0) +
-        Number(byId("ob-food").value || 0) +
-        Number(byId("ob-transport").value || 0) +
-        Number(byId("ob-debt").value || 0) +
-        Number(byId("ob-services").value || 0) +
-        Number(byId("ob-other-expenses").value || 0);
+        getAmount("ob-rent") +
+        getAmount("ob-food") +
+        getAmount("ob-transport") +
+        getAmount("ob-debt") +
+        getAmount("ob-services") +
+        getAmount("ob-other-expenses");
       const surplus = income - expenses;
-      const goalAmount = Number(byId("ob-goal-amount").value || 0);
-      const currentSavings = Number(byId("ob-start-savings").value || 0);
+      const goalAmount = getAmount("ob-goal-amount");
+      const currentSavings = getAmount("ob-start-savings");
       const month = Number(byId("ob-goal-month").value || 0);
       const year = Number(byId("ob-goal-year").value || new Date().getFullYear());
       const diffMonths = Math.max(1, (year - new Date().getFullYear()) * 12 + (month - new Date().getMonth()) + 1);
@@ -1252,37 +1296,37 @@
          </div>`;
     }
     function finishOnboarding(){
-      const salary = Number(byId("ob-salary").value || 0);
+      const salary = getAmount("ob-salary");
       if (salary <= 0) {
         showToast("Tu sueldo mensual es obligatorio.");
         return;
       }
       const month = Number(byId("ob-goal-month").value || 0);
       const year = Number(byId("ob-goal-year").value || new Date().getFullYear());
-      const goalAmount = Number(byId("ob-goal-amount").value || 0);
-      const startSavings = Number(byId("ob-start-savings").value || 0);
+      const goalAmount = getAmount("ob-goal-amount");
+      const startSavings = getAmount("ob-start-savings");
       const diffMonths = Math.max(1, (year - new Date().getFullYear()) * 12 + (month - new Date().getMonth()) + 1);
       const targetMonthly = goalAmount > startSavings ? Math.round((goalAmount - startSavings) / diffMonths) : 0;
 
       state.plan = {
         ...defaultPlan(),
         "plan-salary": salary,
-        "plan-extra-income": Number(byId("ob-extra-income").value || 0),
+        "plan-extra-income": getAmount("ob-extra-income"),
         "plan-other-income": 0,
         "plan-start-savings": startSavings,
         "plan-goal-amount": goalAmount,
         "plan-target-monthly": targetMonthly,
         "plan-apy": 4.5,
-        "plan-rent": Number(byId("ob-rent").value || 0),
-        "plan-services": Number(byId("ob-services").value || 0),
+        "plan-rent": getAmount("ob-rent"),
+        "plan-services": getAmount("ob-services"),
         "plan-insurance": 0,
         "plan-subscriptions": 0,
-        "plan-debt": Number(byId("ob-debt").value || 0),
-        "plan-food": Number(byId("ob-food").value || 0),
-        "plan-transport": Number(byId("ob-transport").value || 0),
+        "plan-debt": getAmount("ob-debt"),
+        "plan-food": getAmount("ob-food"),
+        "plan-transport": getAmount("ob-transport"),
         "plan-fun": 0,
         "plan-health": 0,
-        "plan-other-expenses": Number(byId("ob-other-expenses").value || 0),
+        "plan-other-expenses": getAmount("ob-other-expenses"),
         goalName: byId("ob-goal-name").value.trim() || "Meta principal",
         goalMonth: month,
         goalYear: year
@@ -1311,6 +1355,7 @@
       byId("ob-goal-month").value = state.plan.goalMonth ?? new Date().getMonth();
       byId("ob-goal-year").value = state.plan.goalYear ?? new Date().getFullYear();
       renderWizardDots();
+      refreshCurrencyInputs();
     }
     function toggleLogoutModal(show){
       byId("logout-modal").classList.toggle("hidden", !show);
@@ -1495,6 +1540,9 @@
       });
       PLAN_FIELDS.forEach((id) => {
         byId(id).addEventListener("input", setPlanFromInputs);
+        if (MONEY_INPUT_IDS.includes(id)) {
+          byId(id).setAttribute("data-currency", "true");
+        }
       });
       ["ob-goal-amount","ob-start-savings","ob-goal-month","ob-goal-year","ob-salary","ob-extra-income","ob-rent","ob-food","ob-transport","ob-debt","ob-services","ob-other-expenses"].forEach((id) => {
         byId(id).addEventListener("input", updateWizardSummary);
@@ -1531,6 +1579,7 @@
       hydrateStateFromLocal();
       populateGoalDateSelects();
       bindEvents();
+      refreshCurrencyInputs();
       renderWizardDots();
       checkSession();
     }
