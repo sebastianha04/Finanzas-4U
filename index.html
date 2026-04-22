@@ -86,6 +86,7 @@
       width:min(100%, 460px);
       padding:2rem;
     }
+    .wizard-box{width:min(100%, 580px)}
     .auth-tabs,.nav-tabs{
       display:flex;
       background:rgba(66,99,235,.08);
@@ -246,6 +247,12 @@
       margin-bottom:.25rem;
     }
     .field-row{display:grid;grid-template-columns:1.4fr 1fr;gap:.7rem;align-items:center;margin-bottom:.8rem}
+    .field-label{display:flex;flex-direction:column;gap:.18rem}
+    .field-help{
+      font-size:.76rem;
+      color:var(--muted);
+      line-height:1.4;
+    }
     .progress{
       background:rgba(66,99,235,.10);
       height:12px;border-radius:999px;overflow:hidden;
@@ -311,6 +318,74 @@
     .wizard-dot.active{width:26px;background:linear-gradient(135deg,var(--primary),var(--secondary))}
     .wizard-step{display:none}
     .wizard-step.active{display:block}
+    .wizard-kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:.4rem;
+      padding:.28rem .6rem;
+      border-radius:999px;
+      background:rgba(66,99,235,.08);
+      border:1px solid rgba(66,99,235,.14);
+      color:var(--primary);
+      font-size:.72rem;
+      font-weight:700;
+      margin-bottom:.65rem;
+    }
+    .wizard-cards{
+      display:flex;
+      flex-direction:column;
+      gap:.8rem;
+    }
+    .wizard-card{
+      background:var(--surface-2);
+      border:1.5px solid var(--border);
+      border-radius:18px;
+      padding:1rem 1rem .95rem;
+      box-shadow:0 10px 24px rgba(66,99,235,.05);
+    }
+    .wizard-card-top{
+      display:flex;
+      gap:.7rem;
+      align-items:flex-start;
+      margin-bottom:.7rem;
+    }
+    .wizard-card-ico{
+      width:36px;
+      height:36px;
+      border-radius:12px;
+      background:linear-gradient(135deg,rgba(66,99,235,.12),rgba(124,58,237,.12));
+      display:grid;
+      place-items:center;
+      font-size:1rem;
+      flex-shrink:0;
+    }
+    .wizard-card-title{
+      font-weight:800;
+      font-size:.95rem;
+      line-height:1.2;
+      margin-bottom:.15rem;
+    }
+    .wizard-card-copy{
+      color:var(--muted);
+      font-size:.8rem;
+      line-height:1.45;
+    }
+    .wizard-field-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:.8rem;
+    }
+    .wizard-mini-note{
+      background:linear-gradient(135deg, rgba(66,99,235,.08), rgba(124,58,237,.06));
+      border:1px solid rgba(66,99,235,.14);
+      border-radius:16px;
+      padding:.9rem 1rem;
+      color:var(--muted);
+      font-size:.82rem;
+      line-height:1.5;
+      margin-bottom:.95rem;
+    }
+    .wizard-mini-note strong{color:var(--text)}
     .summary-banner{
       border-radius:18px;
       padding:1rem;
@@ -318,14 +393,53 @@
       background:linear-gradient(135deg, rgba(66,99,235,.07), rgba(124,58,237,.05));
       margin-bottom:1rem;
     }
+    .flow-card{
+      background:var(--surface);
+      border:1.5px solid var(--border);
+      border-radius:20px;
+      padding:1rem 1.1rem;
+      box-shadow:var(--shadow);
+      margin-bottom:1rem;
+    }
+    .flow-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:.7rem;
+      margin-top:.8rem;
+    }
+    .flow-step{
+      background:var(--surface-2);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:.9rem;
+    }
+    .flow-step strong{
+      display:block;
+      margin-bottom:.2rem;
+      font-size:.88rem;
+    }
+    .flow-step span{
+      font-size:.76rem;
+      color:var(--muted);
+      line-height:1.45;
+    }
+    .context-note{
+      font-size:.82rem;
+      color:var(--muted);
+      line-height:1.5;
+      margin:.3rem 0 1rem;
+    }
     .actions-end{display:flex;justify-content:flex-end;gap:.6rem;flex-wrap:wrap}
     @media (max-width:900px){
       .grid-kpi,.grid-two,.wizard-grid,.month-grid{grid-template-columns:repeat(2,1fr)}
+      .flow-grid{grid-template-columns:repeat(2,1fr)}
     }
     @media (max-width:620px){
       .grid-kpi,.grid-two,.wizard-grid,.month-grid{grid-template-columns:1fr}
       .field-row{grid-template-columns:1fr}
       .auth-box,.wizard-box,.modal-box{padding:1.4rem}
+      .flow-grid{grid-template-columns:1fr}
+      .wizard-field-grid{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -399,43 +513,162 @@
       </div>
 
       <div id="wizard-step-1" class="wizard-step">
-        <div class="wizard-title" style="font-size:1.5rem;font-weight:800;margin-bottom:.7rem">Tus ingresos</div>
-        <div class="auth-actions">
-          <input id="ob-salary" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
-          <input id="ob-extra-income" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
-          <div class="actions-end">
-            <button class="btn btn-secondary" type="button" onclick="wizardPrev()">Atrás</button>
-            <button class="btn btn-primary" type="button" onclick="wizardNext()">Siguiente</button>
+        <div class="wizard-kicker">Paso 1 · Lo que entra</div>
+        <div class="wizard-title" style="font-size:1.75rem;font-weight:800;margin-bottom:.45rem">Tus ingresos mensuales</div>
+        <p class="context-note">Vamos a separar lo fijo de lo que ganas por fuera. Eso ayuda a que tu plan se sienta real y a que luego entiendas mejor de dónde viene tu dinero.</p>
+        <div class="wizard-cards" style="margin-bottom:1rem">
+          <div class="wizard-card">
+            <div class="wizard-card-top">
+              <div class="wizard-card-ico">💼</div>
+              <div>
+                <div class="wizard-card-title">Ingreso fijo</div>
+                <div class="wizard-card-copy">Tu sueldo, nómina o ingreso base que normalmente recibes cada mes.</div>
+              </div>
+            </div>
+            <input id="ob-salary" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
           </div>
+          <div class="wizard-card">
+            <div class="wizard-card-top">
+              <div class="wizard-card-ico">🚀</div>
+              <div>
+                <div class="wizard-card-title">Ingresos por fuera</div>
+                <div class="wizard-card-copy">Freelance, comisiones, ventas, emprendimiento o cualquier dinero extra que también te entra.</div>
+              </div>
+            </div>
+            <input id="ob-extra-income" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          </div>
+        </div>
+        <div class="actions-end">
+          <button class="btn btn-secondary" type="button" onclick="wizardPrev()">Atrás</button>
+          <button class="btn btn-primary" type="button" onclick="wizardNext()">Siguiente</button>
         </div>
       </div>
 
       <div id="wizard-step-2" class="wizard-step">
-        <div class="wizard-title" style="font-size:1.5rem;font-weight:800;margin-bottom:.7rem">Tus gastos mensuales</div>
-        <div class="wizard-grid">
-          <input id="ob-rent" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
-          <input id="ob-food" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
-          <input id="ob-transport" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
-          <input id="ob-debt" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
-          <input id="ob-services" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
-          <input id="ob-other-expenses" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+        <div class="wizard-kicker">Paso 2 · Lo que sale</div>
+        <div class="wizard-title" style="font-size:1.75rem;font-weight:800;margin-bottom:.45rem">Tus gastos mensuales</div>
+        <p class="context-note">Aquí ya no queremos cajas sueltas. Separa tus gastos por apartado para que la app te hable claro después: vivienda, comida, transporte, deudas, servicios y extras.</p>
+        <div class="wizard-field-grid" style="margin-bottom:1rem">
+          <div class="wizard-card">
+            <div class="wizard-card-top">
+              <div class="wizard-card-ico">🏠</div>
+              <div>
+                <div class="wizard-card-title">Vivienda</div>
+                <div class="wizard-card-copy">Renta o hipoteca.</div>
+              </div>
+            </div>
+            <input id="ob-rent" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          </div>
+          <div class="wizard-card">
+            <div class="wizard-card-top">
+              <div class="wizard-card-ico">🛒</div>
+              <div>
+                <div class="wizard-card-title">Comida y súper</div>
+                <div class="wizard-card-copy">Compras del hogar y comida fuera.</div>
+              </div>
+            </div>
+            <input id="ob-food" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          </div>
+          <div class="wizard-card">
+            <div class="wizard-card-top">
+              <div class="wizard-card-ico">🚗</div>
+              <div>
+                <div class="wizard-card-title">Transporte</div>
+                <div class="wizard-card-copy">Gasolina, Uber, camión o metro.</div>
+              </div>
+            </div>
+            <input id="ob-transport" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          </div>
+          <div class="wizard-card">
+            <div class="wizard-card-top">
+              <div class="wizard-card-ico">💳</div>
+              <div>
+                <div class="wizard-card-title">Deudas</div>
+                <div class="wizard-card-copy">Tarjetas, préstamos o créditos.</div>
+              </div>
+            </div>
+            <input id="ob-debt" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          </div>
+          <div class="wizard-card">
+            <div class="wizard-card-top">
+              <div class="wizard-card-ico">💡</div>
+              <div>
+                <div class="wizard-card-title">Servicios</div>
+                <div class="wizard-card-copy">Luz, agua, internet, gas, celular.</div>
+              </div>
+            </div>
+            <input id="ob-services" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          </div>
+          <div class="wizard-card">
+            <div class="wizard-card-top">
+              <div class="wizard-card-ico">✨</div>
+              <div>
+                <div class="wizard-card-title">Extras</div>
+                <div class="wizard-card-copy">Gastos personales, ocio o estilo de vida.</div>
+              </div>
+            </div>
+            <input id="ob-other-expenses" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          </div>
         </div>
-        <div class="actions-end" style="margin-top:1rem">
+        <div class="actions-end">
           <button class="btn btn-secondary" type="button" onclick="wizardPrev()">Atrás</button>
           <button class="btn btn-primary" type="button" onclick="wizardNext()">Siguiente</button>
         </div>
       </div>
 
       <div id="wizard-step-3" class="wizard-step">
-        <div class="wizard-title" style="font-size:1.5rem;font-weight:800;margin-bottom:.7rem">Tu meta principal</div>
-        <div class="auth-actions">
-          <input id="ob-start-savings" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
-          <input id="ob-goal-name" type="text" placeholder="Nombre de tu meta (ej. Fondo de emergencia)">
-          <input id="ob-goal-amount" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
-          <div class="inline">
-            <select id="ob-goal-month"></select>
-            <select id="ob-goal-year"></select>
+        <div class="wizard-kicker">Paso 3 · Tu dirección</div>
+        <div class="wizard-title" style="font-size:1.75rem;font-weight:800;margin-bottom:.45rem">Tu meta principal</div>
+        <p class="context-note">Esta es la meta que la app va a seguir primero. Puede ser un fondo de emergencia, un viaje, pagar una deuda o cualquier cantidad que quieras construir.</p>
+        <div class="wizard-mini-note">
+          <strong>Piensa en ella como tu meta guía.</strong> Con esto la app calcula cuánto tendrías que apartar al mes y te dice si con tu situación actual sí llegas.
+        </div>
+        <div class="wizard-cards" style="margin-bottom:1rem">
+          <div class="wizard-card">
+            <div class="wizard-card-top">
+              <div class="wizard-card-ico">🏦</div>
+              <div>
+                <div class="wizard-card-title">Ahorro inicial</div>
+                <div class="wizard-card-copy">Lo que ya tienes guardado hoy para arrancar esta meta.</div>
+              </div>
+            </div>
+            <input id="ob-start-savings" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
           </div>
+          <div class="wizard-card">
+            <div class="wizard-card-top">
+              <div class="wizard-card-ico">🎯</div>
+              <div>
+                <div class="wizard-card-title">Nombre de la meta</div>
+                <div class="wizard-card-copy">Ponle un nombre que sí te diga algo. Ejemplo: Fondo de emergencia, Viaje a Japón, Deuda cero.</div>
+              </div>
+            </div>
+            <input id="ob-goal-name" type="text" placeholder="Ej. Fondo de emergencia">
+          </div>
+          <div class="wizard-card">
+            <div class="wizard-card-top">
+              <div class="wizard-card-ico">💰</div>
+              <div>
+                <div class="wizard-card-title">Monto objetivo</div>
+                <div class="wizard-card-copy">La cantidad final que quieres alcanzar con esa meta principal.</div>
+              </div>
+            </div>
+            <input id="ob-goal-amount" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
+          </div>
+          <div class="wizard-card">
+            <div class="wizard-card-top">
+              <div class="wizard-card-ico">🗓️</div>
+              <div>
+                <div class="wizard-card-title">Fecha objetivo</div>
+                <div class="wizard-card-copy">Mes y año en que te gustaría llegar a esa cantidad.</div>
+              </div>
+            </div>
+            <div class="inline">
+              <select id="ob-goal-month"></select>
+              <select id="ob-goal-year"></select>
+            </div>
+          </div>
+        </div>
+        <div class="auth-actions">
           <div id="wizard-summary" class="summary-banner"></div>
           <div class="actions-end">
             <button class="btn btn-secondary" type="button" onclick="wizardPrev()">Atrás</button>
@@ -479,6 +712,29 @@
         <div class="hero-actions">
           <button class="btn btn-secondary" type="button" onclick="switchScreen('tracker')">Registrar mes</button>
           <button class="btn btn-secondary" type="button" onclick="openOnboarding(true)">Editar plan</button>
+        </div>
+      </div>
+
+      <div class="flow-card">
+        <div class="card-title">Flujo de la App</div>
+        <div class="context-note">No son datos duplicados: cada pantalla sirve para una etapa distinta de tu dinero.</div>
+        <div class="flow-grid">
+          <div class="flow-step">
+            <strong>1. Onboarding</strong>
+            <span>Pones un estimado inicial de ingresos, gastos y tu meta principal.</span>
+          </div>
+          <div class="flow-step">
+            <strong>2. Mi Plan</strong>
+            <span>Editas tu presupuesto mensual planeado: lo que esperas gastar y ahorrar cada mes.</span>
+          </div>
+          <div class="flow-step">
+            <strong>3. Meses</strong>
+            <span>Registras lo real de cada mes. Esto compara realidad vs plan y actualiza tu saldo.</span>
+          </div>
+          <div class="flow-step">
+            <strong>4. Inicio</strong>
+            <span>Te resume el avance total: saldo, superávit, metas y estado general.</span>
+          </div>
         </div>
       </div>
 
@@ -545,38 +801,43 @@
         <p class="muted">Ajusta tu presupuesto base y guarda escenarios.</p>
       </div>
 
+      <div class="flow-card">
+        <div class="card-title">Qué editas aquí</div>
+        <div class="context-note">Todo lo de esta pantalla es <strong>planeado mensual</strong>. No es lo que ya pasó; eso va en <strong>Meses</strong>.</div>
+      </div>
+
       <div class="grid-two">
         <div class="card">
           <div class="card-title" style="margin-bottom:.9rem">Ingresos</div>
-          <div class="field-row"><label>Sueldo neto</label><input id="plan-salary" type="text" inputmode="decimal" data-currency="true"></div>
-          <div class="field-row"><label>Ingreso extra</label><input id="plan-extra-income" type="text" inputmode="decimal" data-currency="true"></div>
-          <div class="field-row"><label>Otros ingresos</label><input id="plan-other-income" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Sueldo neto</label><div class="field-help">Tu ingreso fijo promedio cada mes, después de impuestos.</div></div><input id="plan-salary" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Ingreso extra</label><div class="field-help">Dinero extra frecuente: freelance, comisiones, rentas, etc.</div></div><input id="plan-extra-income" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Otros ingresos</label><div class="field-help">Entradas ocasionales que sí quieres contar en tu planeación mensual.</div></div><input id="plan-other-income" type="text" inputmode="decimal" data-currency="true"></div>
         </div>
 
         <div class="card">
           <div class="card-title" style="margin-bottom:.9rem">Ahorro y meta</div>
-          <div class="field-row"><label>Ahorro actual</label><input id="plan-start-savings" type="text" inputmode="decimal" data-currency="true"></div>
-          <div class="field-row"><label>Meta principal</label><input id="plan-goal-amount" type="text" inputmode="decimal" data-currency="true"></div>
-          <div class="field-row"><label>Aportación mensual objetivo</label><input id="plan-target-monthly" type="text" inputmode="decimal" data-currency="true"></div>
-          <div class="field-row"><label>Rendimiento anual (%)</label><input id="plan-apy" type="number" step="0.1"></div>
+          <div class="field-row"><div class="field-label"><label>Ahorro actual</label><div class="field-help">Lo que ya tienes guardado hoy y sirve como punto de partida.</div></div><input id="plan-start-savings" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Meta principal</label><div class="field-help">Monto final que quieres alcanzar con tu objetivo principal.</div></div><input id="plan-goal-amount" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Aportación mensual objetivo</label><div class="field-help">Lo que planeas apartar cada mes para avanzar hacia esa meta.</div></div><input id="plan-target-monthly" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Rendimiento anual (%)</label><div class="field-help">Opcional: rendimiento estimado de una inversión tipo CETES.</div></div><input id="plan-apy" type="number" step="0.1"></div>
         </div>
 
         <div class="card">
           <div class="card-title" style="margin-bottom:.9rem">Gastos fijos</div>
-          <div class="field-row"><label>Renta / hipoteca</label><input id="plan-rent" type="text" inputmode="decimal" data-currency="true"></div>
-          <div class="field-row"><label>Servicios</label><input id="plan-services" type="text" inputmode="decimal" data-currency="true"></div>
-          <div class="field-row"><label>Seguros</label><input id="plan-insurance" type="text" inputmode="decimal" data-currency="true"></div>
-          <div class="field-row"><label>Suscripciones</label><input id="plan-subscriptions" type="text" inputmode="decimal" data-currency="true"></div>
-          <div class="field-row"><label>Deudas</label><input id="plan-debt" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Renta / hipoteca</label><div class="field-help">Pago fijo de vivienda que casi no cambia mes a mes.</div></div><input id="plan-rent" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Servicios</label><div class="field-help">Luz, agua, internet, gas, celular o similares.</div></div><input id="plan-services" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Seguros</label><div class="field-help">Auto, gastos médicos, vida u otros pagos recurrentes.</div></div><input id="plan-insurance" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Suscripciones</label><div class="field-help">Netflix, Spotify, apps, membresías y cobros automáticos.</div></div><input id="plan-subscriptions" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Deudas</label><div class="field-help">Pago mensual de tarjetas, préstamos o créditos.</div></div><input id="plan-debt" type="text" inputmode="decimal" data-currency="true"></div>
         </div>
 
         <div class="card">
           <div class="card-title" style="margin-bottom:.9rem">Gastos variables</div>
-          <div class="field-row"><label>Comida</label><input id="plan-food" type="text" inputmode="decimal" data-currency="true"></div>
-          <div class="field-row"><label>Transporte</label><input id="plan-transport" type="text" inputmode="decimal" data-currency="true"></div>
-          <div class="field-row"><label>Entretenimiento</label><input id="plan-fun" type="text" inputmode="decimal" data-currency="true"></div>
-          <div class="field-row"><label>Salud</label><input id="plan-health" type="text" inputmode="decimal" data-currency="true"></div>
-          <div class="field-row"><label>Otros</label><input id="plan-other-expenses" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Comida</label><div class="field-help">Súper, comidas fuera y compras del día a día.</div></div><input id="plan-food" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Transporte</label><div class="field-help">Gasolina, Uber, camión, metro, estacionamiento, etc.</div></div><input id="plan-transport" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Entretenimiento</label><div class="field-help">Salidas, cine, hobbies o gastos de ocio.</div></div><input id="plan-fun" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Salud</label><div class="field-help">Medicinas, consultas y gastos de bienestar.</div></div><input id="plan-health" type="text" inputmode="decimal" data-currency="true"></div>
+          <div class="field-row"><div class="field-label"><label>Otros</label><div class="field-help">Cualquier gasto planeado que no caiga en otra categoría.</div></div><input id="plan-other-expenses" type="text" inputmode="decimal" data-currency="true"></div>
         </div>
       </div>
 
@@ -624,6 +885,11 @@
         <p class="muted">Registra cada mes y compáralo contra tu plan.</p>
       </div>
 
+      <div class="flow-card">
+        <div class="card-title">Qué editas aquí</div>
+        <div class="context-note">Aquí capturas lo que <strong>sí pasó en la vida real</strong>. Esto no cambia tu presupuesto base; solo registra resultados reales.</div>
+      </div>
+
       <div class="card" style="margin-bottom:1rem">
         <div class="card-title" style="margin-bottom:.8rem">Progreso real</div>
         <div class="inline" style="justify-content:space-between;margin-bottom:.55rem">
@@ -657,7 +923,7 @@
   <div id="month-modal" class="modal-wrap hidden">
     <div class="modal-box">
       <div class="wizard-title" id="month-modal-title" style="font-size:1.45rem;font-weight:800;margin-bottom:.25rem">Registrar mes</div>
-      <p class="muted" style="margin-bottom:1rem">Captura lo que pasó realmente.</p>
+      <p class="muted" style="margin-bottom:1rem">Captura lo que pasó realmente en ese mes. Estos datos alimentan el historial y comparan realidad vs plan.</p>
       <div class="auth-actions">
         <input id="month-income" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
         <input id="month-expense" type="text" inputmode="decimal" data-currency="true" placeholder="MX$0">
@@ -673,11 +939,35 @@
 
   <div id="logout-modal" class="modal-wrap hidden">
     <div class="modal-box">
-      <div class="wizard-title" style="font-size:1.45rem;font-weight:800;margin-bottom:.35rem">Cerrar sesión</div>
-      <p class="muted" style="line-height:1.5;margin-bottom:1rem">Tus datos seguirán guardados en Supabase y podrás entrar después.</p>
+      <div class="wizard-title" style="font-size:1.45rem;font-weight:800;margin-bottom:.35rem">Tu cuenta</div>
+      <p class="muted" style="line-height:1.5;margin-bottom:1rem">Aquí puedes cerrar sesión o reiniciar toda tu información para volver a empezar desde cero.</p>
+      <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:16px;padding:.95rem 1rem;margin-bottom:1rem">
+        <div style="font-weight:800;margin-bottom:.2rem">Cerrar sesión</div>
+        <div class="muted" style="font-size:.84rem;line-height:1.45">Sales de la app, pero tus datos siguen guardados en Supabase.</div>
+      </div>
+      <div style="background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.18);border-radius:16px;padding:.95rem 1rem;margin-bottom:1rem">
+        <div style="font-weight:800;margin-bottom:.2rem;color:var(--danger)">Reiniciar todo</div>
+        <div class="muted" style="font-size:.84rem;line-height:1.45">Borra tu plan, metas, historial mensual y escenarios guardados. Después volverás al onboarding.</div>
+      </div>
       <div class="actions-end">
         <button class="btn btn-secondary" type="button" onclick="toggleLogoutModal(false)">Cancelar</button>
+        <button id="open-reset-data-btn" class="btn btn-danger" type="button">Reiniciar todo</button>
         <button id="confirm-logout-btn" class="btn btn-primary" type="button">Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="reset-data-modal" class="modal-wrap hidden">
+    <div class="modal-box">
+      <div class="wizard-title" style="font-size:1.45rem;font-weight:800;margin-bottom:.35rem">¿Empezar desde cero?</div>
+      <p class="muted" style="line-height:1.55;margin-bottom:1rem">Esto borrará todo tu avance actual: presupuesto, metas, meses registrados y escenarios guardados. Tu cuenta seguirá existiendo, pero la app volverá como nueva.</p>
+      <div style="background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.18);border-radius:16px;padding:.95rem 1rem;margin-bottom:1rem">
+        <div style="font-weight:800;color:var(--danger);margin-bottom:.2rem">Acción irreversible</div>
+        <div class="muted" style="font-size:.84rem;line-height:1.45">Solo haz esto si de verdad estás de acuerdo con reiniciar tu información.</div>
+      </div>
+      <div class="actions-end">
+        <button class="btn btn-secondary" type="button" onclick="toggleResetDataModal(false)">Cancelar</button>
+        <button id="confirm-reset-data-btn" class="btn btn-danger" type="button">Sí, empezar desde 0</button>
       </div>
     </div>
   </div>
@@ -771,6 +1061,17 @@
           setCurrencyInputValue(input, parseAmount(input.value));
         }
       });
+    }
+    function resetLocalAppData(){
+      state.plan = defaultPlan();
+      state.goals = [];
+      state.months = {};
+      state.snapshots = [];
+      setLocal(STORAGE_KEYS.plan, state.plan);
+      setLocal(STORAGE_KEYS.goals, state.goals);
+      setLocal(STORAGE_KEYS.months, state.months);
+      setLocal(STORAGE_KEYS.snapshots, state.snapshots);
+      setLocal(STORAGE_KEYS.onboarding, false);
     }
     function showLoggedOutState(){
       byId("app-loading").classList.add("hidden");
@@ -1365,6 +1666,9 @@
     function toggleLogoutModal(show){
       byId("logout-modal").classList.toggle("hidden", !show);
     }
+    function toggleResetDataModal(show){
+      byId("reset-data-modal").classList.toggle("hidden", !show);
+    }
 
     async function saveCloudData(){
       if (!state.currentUser) return;
@@ -1496,6 +1800,34 @@
       byId("login-password").value = "";
       setMessage();
     }
+    async function resetAllData(){
+      const btn = byId("confirm-reset-data-btn");
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Reiniciando...";
+      try {
+        clearTimeout(state.syncTimer);
+        if (state.currentUser) {
+          const { error } = await supa.from("user_data").delete().eq("user_id", state.currentUser.id);
+          if (error) throw error;
+        }
+        resetLocalAppData();
+        toggleResetDataModal(false);
+        toggleLogoutModal(false);
+        renderAll();
+        byId("auth-wrap").classList.add("hidden");
+        byId("app-loading").classList.add("hidden");
+        byId("app-shell").style.display = "block";
+        openOnboarding(false);
+        showToast("Todo fue reiniciado. Empezamos desde cero.");
+      } catch (error) {
+        console.error("Error resetting data", error);
+        showToast("No se pudo reiniciar todo. Inténtalo otra vez.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    }
     async function onAuthSuccess(user){
       state.currentUser = user;
       renderUser();
@@ -1535,7 +1867,9 @@
       byId("register-btn").addEventListener("click", register);
       byId("reset-btn").addEventListener("click", resetPassword);
       byId("logout-open-btn").addEventListener("click", () => toggleLogoutModal(true));
+      byId("open-reset-data-btn").addEventListener("click", () => toggleResetDataModal(true));
       byId("confirm-logout-btn").addEventListener("click", logout);
+      byId("confirm-reset-data-btn").addEventListener("click", resetAllData);
       byId("add-goal-btn").addEventListener("click", addGoal);
       byId("save-snapshot-btn").addEventListener("click", saveSnapshot);
       byId("month-save-btn").addEventListener("click", saveMonth);
@@ -1557,6 +1891,7 @@
         if (event.key === "Escape") {
           closeMonthModal();
           toggleLogoutModal(false);
+          toggleResetDataModal(false);
         }
       });
       byId("month-modal").addEventListener("click", (event) => {
@@ -1564,6 +1899,9 @@
       });
       byId("logout-modal").addEventListener("click", (event) => {
         if (event.target === byId("logout-modal")) toggleLogoutModal(false);
+      });
+      byId("reset-data-modal").addEventListener("click", (event) => {
+        if (event.target === byId("reset-data-modal")) toggleResetDataModal(false);
       });
     }
     async function checkSession(){
