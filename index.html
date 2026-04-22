@@ -772,6 +772,11 @@
         }
       });
     }
+    function showLoggedOutState(){
+      byId("app-loading").classList.add("hidden");
+      byId("auth-wrap").classList.remove("hidden");
+      byId("app-shell").style.display = "none";
+    }
     function showToast(message){
       const toast = byId("toast");
       toast.textContent = message;
@@ -1562,17 +1567,28 @@
       });
     }
     async function checkSession(){
-      supa.auth.onAuthStateChange(async (event, session) => {
-        if (event === "SIGNED_IN" && session?.user && !state.currentUser) {
+      try {
+        const sessionTimeout = new Promise((resolve) => {
+          setTimeout(() => resolve({ data: { session: null }, timeout: true }), 5000);
+        });
+        supa.auth.onAuthStateChange(async (event, session) => {
+          if (event === "SIGNED_IN" && session?.user && !state.currentUser) {
+            await onAuthSuccess(session.user);
+          }
+          if (event === "SIGNED_OUT") {
+            showLoggedOutState();
+          }
+        });
+        const result = await Promise.race([supa.auth.getSession(), sessionTimeout]);
+        const session = result?.data?.session || null;
+        if (session?.user) {
           await onAuthSuccess(session.user);
+        } else {
+          showLoggedOutState();
         }
-      });
-      const { data: { session } } = await supa.auth.getSession();
-      if (session?.user) {
-        await onAuthSuccess(session.user);
-      } else {
-        byId("app-loading").classList.add("hidden");
-        byId("auth-wrap").classList.remove("hidden");
+      } catch (error) {
+        console.error("Error checking session", error);
+        showLoggedOutState();
       }
     }
     function init(){
