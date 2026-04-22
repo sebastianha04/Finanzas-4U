@@ -75,6 +75,11 @@
       background:rgba(22,28,80,.36);
       backdrop-filter:blur(8px);
     }
+    .onboarding-wrap{
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+    }
     .panel,.auth-box,.wizard-box,.modal-box{
       width:min(100%, 1080px);
       background:var(--surface);
@@ -86,7 +91,13 @@
       width:min(100%, 460px);
       padding:2rem;
     }
-    .wizard-box{width:min(100%, 580px)}
+    .wizard-box{
+      width:min(100%, 580px);
+      max-height:calc(100vh - 2rem);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      -webkit-overflow-scrolling:touch;
+    }
     .auth-tabs,.nav-tabs{
       display:flex;
       background:rgba(66,99,235,.08);
