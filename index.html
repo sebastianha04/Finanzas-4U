@@ -993,7 +993,8 @@
       goals: "f4u_goals_v2",
       months: "f4u_months_v2",
       snapshots: "f4u_snapshots_v2",
-      onboarding: "f4u_onboarding_done_v2"
+      onboarding: "f4u_onboarding_done_v2",
+      localOwner: "f4u_local_owner_v2"
     };
     const MONEY_INPUT_IDS = [
       "ob-salary","ob-extra-income","ob-rent","ob-food","ob-transport","ob-debt","ob-services","ob-other-expenses",
@@ -1035,6 +1036,24 @@
     }
     function setLocal(key, value){
       localStorage.setItem(key, JSON.stringify(value));
+    }
+    function getLocalOwner(){
+      return localStorage.getItem(STORAGE_KEYS.localOwner);
+    }
+    function setLocalOwner(userId){
+      if (userId) {
+        localStorage.setItem(STORAGE_KEYS.localOwner, userId);
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.localOwner);
+      }
+    }
+    function hasStoredFinancialData(){
+      return [
+        STORAGE_KEYS.plan,
+        STORAGE_KEYS.goals,
+        STORAGE_KEYS.months,
+        STORAGE_KEYS.snapshots
+      ].some((key) => localStorage.getItem(key) !== null);
     }
     function fmtMoney(value){
       const amount = Number(value || 0);
@@ -1144,6 +1163,7 @@
       state.goals = getLocal(STORAGE_KEYS.goals, []);
       state.months = getLocal(STORAGE_KEYS.months, {});
       state.snapshots = getLocal(STORAGE_KEYS.snapshots, []);
+      syncStoredMonthBalances();
     }
     function persistLocal(){
       setLocal(STORAGE_KEYS.plan, state.plan);
@@ -1151,6 +1171,7 @@
       setLocal(STORAGE_KEYS.months, state.months);
       setLocal(STORAGE_KEYS.snapshots, state.snapshots);
       if (state.currentUser) {
+        setLocalOwner(state.currentUser.id);
         clearTimeout(state.syncTimer);
         state.syncTimer = setTimeout(saveCloudData, 800);
       }
@@ -1187,6 +1208,29 @@
         goal
       };
     }
+    function projectPlannedMonth(balance, values){
+      return balance * (1 + values.monthlyRate) + values.targetMonthly;
+    }
+    function monthBalanceUntil(index){
+      let balance = Number(state.plan["plan-start-savings"] || 0);
+      const values = currentPlanValues();
+      for (let i = 0; i < index; i += 1) {
+        if (state.months[i]) {
+          balance += Number(state.months[i].saved || 0);
+        } else {
+          balance = projectPlannedMonth(balance, values);
+        }
+      }
+      return balance;
+    }
+    function monthBalanceAfter(index){
+      return monthBalanceUntil(index) + Number(state.months[index]?.saved || 0);
+    }
+    function syncStoredMonthBalances(){
+      Object.keys(state.months).map(Number).sort((a,b) => a - b).forEach((index) => {
+        state.months[index].balanceAfter = monthBalanceAfter(index);
+      });
+    }
     function getPrimaryGoal(){
       if (state.plan.goalName && Number(state.plan["plan-goal-amount"] || 0) > 0) {
         return {
@@ -1203,7 +1247,7 @@
       const monthIndexes = Object.keys(state.months).map(Number).sort((a,b) => a - b);
       if (monthIndexes.length) {
         const last = monthIndexes[monthIndexes.length - 1];
-        return Number(state.months[last].balanceAfter || 0);
+        return monthBalanceAfter(last);
       }
       return Number(state.plan["plan-start-savings"] || 0);
     }
@@ -1213,9 +1257,9 @@
       let balance = values.startSavings;
       for (let i = 0; i < 12; i += 1) {
         if (state.months[i]) {
-          balance = Number(state.months[i].balanceAfter || balance);
+          balance += Number(state.months[i].saved || 0);
         } else {
-          balance = balance * (1 + values.monthlyRate) + values.targetMonthly;
+          balance = projectPlannedMonth(balance, values);
         }
         balances.push(Math.round(balance));
       }
@@ -1380,21 +1424,20 @@
 
       const grid = byId("month-grid");
       const values = currentPlanValues();
-      let lastBalance = values.startSavings;
       grid.innerHTML = MONTHS.map((month, index) => {
         const data = state.months[index];
         const prevExists = index === 0 || !!state.months[index - 1];
         const locked = !(prevExists || data);
         const saved = data ? fmtMoney(data.saved) : fmtMoney(values.targetMonthly);
+        const balanceAfter = data ? monthBalanceAfter(index) : null;
         const classes = ["month-tile"];
         if (data) classes.push("done");
         if (locked) classes.push("locked");
-        if (data) lastBalance = data.balanceAfter;
         return `
           <button class="${classes.join(" ")}" type="button" ${locked ? "disabled" : `onclick="openMonthModal(${index})"`}>
             <div class="card-title">${month}</div>
             <div style="font-weight:800;font-size:1.1rem;margin:.35rem 0">${data ? "Registrado" : "Pendiente"}</div>
-            <div class="muted">${data ? "Saldo: " + fmtMoney(data.balanceAfter) : "Planeado: " + saved}</div>
+            <div class="muted">${data ? "Saldo: " + fmtMoney(balanceAfter) : "Planeado: " + saved}</div>
           </button>
         `;
       }).join("");
@@ -1408,7 +1451,7 @@
             <td>${fmtMoney(month.income)}</td>
             <td>${fmtMoney(month.expense)}</td>
             <td>${fmtMoney(month.saved)}</td>
-            <td>${fmtMoney(month.balanceAfter)}</td>
+            <td>${fmtMoney(monthBalanceAfter(index))}</td>
           </tr>
         `;
       }).join("") : '<tr><td colspan="5" class="muted" style="text-align:center">Sin meses registrados todavía.</td></tr>';
@@ -1434,6 +1477,7 @@
         const input = byId(id);
         state.plan[id] = id === "plan-apy" ? Number(input.value || 0) : parseAmount(input.value);
       });
+      syncStoredMonthBalances();
       persistLocal();
       renderDashboard();
       renderPlan();
@@ -1499,6 +1543,7 @@
       state.plan = { ...defaultPlan(), ...snap.plan };
       state.goals = JSON.parse(JSON.stringify(snap.goals || []));
       state.months = JSON.parse(JSON.stringify(snap.months || {}));
+      syncStoredMonthBalances();
       persistLocal();
       renderAll();
       showToast("Escenario cargado.");
@@ -1507,18 +1552,6 @@
       state.snapshots = state.snapshots.filter((snap) => snap.id !== id);
       persistLocal();
       renderSnapshots();
-    }
-    function monthBalanceUntil(index){
-      let balance = Number(state.plan["plan-start-savings"] || 0);
-      const values = currentPlanValues();
-      for (let i = 0; i < index; i += 1) {
-        if (state.months[i]) {
-          balance = Number(state.months[i].balanceAfter || balance);
-        } else {
-          balance = balance * (1 + values.monthlyRate) + values.targetMonthly;
-        }
-      }
-      return balance;
     }
     function openMonthModal(index){
       state.editingMonth = index;
@@ -1542,9 +1575,8 @@
       const income = getAmount("month-income");
       const expense = getAmount("month-expense");
       const saved = getAmount("month-saved");
-      const previousBalance = monthBalanceUntil(monthIndex);
-      const balanceAfter = previousBalance + saved;
-      state.months[monthIndex] = { income, expense, saved, balanceAfter };
+      state.months[monthIndex] = { income, expense, saved };
+      syncStoredMonthBalances();
       persistLocal();
       closeMonthModal();
       renderTracker();
@@ -1554,6 +1586,7 @@
     function deleteMonth(){
       if (state.editingMonth === null) return;
       delete state.months[state.editingMonth];
+      syncStoredMonthBalances();
       persistLocal();
       closeMonthModal();
       renderTracker();
@@ -1648,6 +1681,7 @@
         goalMonth: month,
         goalYear: year
       };
+      syncStoredMonthBalances();
       setLocal(STORAGE_KEYS.onboarding, true);
       persistLocal();
       byId("onboarding-wrap").classList.add("hidden");
@@ -1713,6 +1747,7 @@
       state.months = safeJSONParse(data.monthly_data, {});
       state.goals = safeJSONParse(data.goals_data, []);
       state.snapshots = safeJSONParse(data.snaps_data, []);
+      syncStoredMonthBalances();
       persistLocal();
     }
     async function handleGoogleAuth(button){
@@ -1805,6 +1840,11 @@
     async function logout(){
       await supa.auth.signOut();
       state.currentUser = null;
+      state.plan = defaultPlan();
+      state.goals = [];
+      state.months = {};
+      state.snapshots = [];
+      state.editingMonth = null;
       toggleLogoutModal(false);
       byId("app-shell").style.display = "none";
       byId("auth-wrap").classList.remove("hidden");
@@ -1841,8 +1881,18 @@
     }
     async function onAuthSuccess(user){
       state.currentUser = user;
+      const localOwner = getLocalOwner();
+      if (localOwner && localOwner !== user.id) {
+        resetLocalAppData();
+      } else {
+        hydrateStateFromLocal();
+        if (!localOwner && hasStoredFinancialData()) {
+          setLocalOwner(user.id);
+        }
+      }
       renderUser();
       await loadCloudData(user.id);
+      setLocalOwner(user.id);
       byId("auth-wrap").classList.add("hidden");
       byId("app-loading").classList.add("hidden");
       byId("app-shell").style.display = "block";
